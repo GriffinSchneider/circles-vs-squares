@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/base/core/core.jar">
 		<attributes>
+			<attribute name="javadoc_location" value="http://processing.googlecode.com/svn/trunk/processing/build/javadoc/core/"/>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="CirclesVsSquares/lib/base/core"/>
 		</attributes>
 	</classpathentry>
