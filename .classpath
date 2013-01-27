@@ -68,5 +68,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jbox2d_2.1.2_ds_v2.jar"/>
+	<classpathentry kind="lib" path="lib/pbox2d.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-nop-1.6.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
