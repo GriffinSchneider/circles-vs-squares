@@ -59,8 +59,8 @@ class Player {
         cvs.strokeWeight(1);
         cvs.ellipse(0, 0, r*2, r*2);
         // Let's add a line so we can see the rotation
-        CirclesVsSquares.instance().line(0, 0, r, 0);
-        CirclesVsSquares.instance().popMatrix();
+        cvs.line(0, 0, r, 0);
+        cvs.popMatrix();
     }
 
     // This function adds the rectangle to the box2d world
