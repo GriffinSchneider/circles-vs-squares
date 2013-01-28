@@ -8,7 +8,7 @@ import org.jbox2d.dynamics.BodyType;
 import pbox2d.PBox2D;
 import processing.core.PConstants;
 
-class Boundary {
+class Ground {
 
     // a boundary is a simple rectangle with x,y,width,and height
     float x;
@@ -19,7 +19,7 @@ class Boundary {
     // but we also have to make a body for box2d to know about it
     Body b;
 
-    Boundary(float x,float y, float w, float h, PBox2D box2d) {
+    Ground(float x,float y, float w, float h, PBox2D box2d) {
         this.x = x;
         this.y = y;
         this.w = w;

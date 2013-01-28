@@ -37,7 +37,7 @@ class CustomListener implements ContactListener {
         } 
     
         if (p != null && other != null) {
-            if (other.getClass() == Boundary.class) {
+            if (other.getClass() == Ground.class) {
     		p.canMove = true;
             }
         }
@@ -68,7 +68,7 @@ class CustomListener implements ContactListener {
         } 
     
         if (p != null && other != null) {
-            if (other.getClass() == Boundary.class) {
+            if (other.getClass() == Ground.class) {
     		p.canMove = false;
             }
         }
