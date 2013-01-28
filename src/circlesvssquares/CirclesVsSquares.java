@@ -16,6 +16,10 @@ public class CirclesVsSquares extends PApplet {
     public static CirclesVsSquares instance() {
         return instance; 
     }
+    
+    public static void main(String[] args) {
+        PApplet.main(new String[] { CirclesVsSquares.class.getName() });
+    }
 	
     // A reference to our box2d world
     private PBox2D box2d;
