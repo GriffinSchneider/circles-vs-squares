@@ -100,7 +100,7 @@ class Player {
         
         // Parameters that affect physics
         fd.density = 1;
-        fd.friction = 0.05f;
+        fd.friction = 0.5f;
         fd.restitution = 0.1f;
 
         // Attach fixture to body
