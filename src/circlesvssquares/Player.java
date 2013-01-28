@@ -71,7 +71,7 @@ class Player {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
         cvs.translate(pos.x, pos.y);
-        cvs.rotate(a);
+        cvs.rotate(-a);
         cvs.fill(0, 255, 0);
         cvs.stroke(0);
         cvs.strokeWeight(1);
