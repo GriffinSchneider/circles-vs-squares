@@ -28,7 +28,7 @@ public class CirclesVsSquares extends PApplet {
     // Just a single box this time
     Player player;
 
-    ArrayList<Ground> boundaries;
+    ArrayList<Ground> groundList;
 
     @Override
     public void setup() {
@@ -46,9 +46,9 @@ public class CirclesVsSquares extends PApplet {
 
         player = new Player(200, 150, box2d);
 
-        boundaries = new ArrayList<Ground>();
-        boundaries.add(new Ground(200, 200, 300, 25, box2d));
-        boundaries.add(new Ground(400, 300, 100, 25, box2d));
+        groundList = new ArrayList<Ground>();
+        groundList.add(new Ground(200, 200, 300, 25, box2d));
+        groundList.add(new Ground(400, 300, 100, 25, box2d));
     }
 
     boolean[] keys = new boolean[526];
@@ -93,8 +93,8 @@ public class CirclesVsSquares extends PApplet {
         // Step the physics simulation
         box2d.step();
 
-        for (int i = boundaries.size()-1; i >=0; i--) {
-            Ground b = boundaries.get(i);
+        for (int i = groundList.size()-1; i >=0; i--) {
+            Ground b = groundList.get(i);
             b.display();
         }
 	  
