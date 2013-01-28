@@ -25,6 +25,7 @@ public class CirclesVsSquares extends PApplet {
 
     ArrayList<Boundary> boundaries;
 
+    @Override
     public void setup() {
         instance = this;
         size(640, 400);
@@ -55,14 +56,17 @@ public class CirclesVsSquares extends PApplet {
         return false;
     }
 	 
+    @Override
     public void keyPressed() { 
         keys[keyCode] = true;
     }
 	 
+    @Override
     public void keyReleased() { 
         keys[keyCode] = false; 
     }
 
+    @Override
     public void draw() {
         background(255);
 

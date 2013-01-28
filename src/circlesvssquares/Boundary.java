@@ -6,7 +6,7 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 
 import pbox2d.PBox2D;
-import processing.core.PApplet;
+import processing.core.PConstants;
 
 class Boundary {
 
@@ -50,7 +50,7 @@ class Boundary {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.fill(0);
         cvs.stroke(0);
-        cvs.rectMode(PApplet.CENTER);
+        cvs.rectMode(PConstants.CENTER);
         cvs.rect(x,y,w,h);
     }
 
