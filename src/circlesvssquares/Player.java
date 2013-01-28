@@ -10,7 +10,25 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import pbox2d.PBox2D;
 
+
 class Player {
+
+    // Magnitude of impulse to apply each frame in the x-direction to make the player move
+    private static final float PLAYER_MOVEMENT_IMPULSE = 10;
+    // Maximum x-velocity that the player can reach before we stop increasing the velocity
+    // due to key presses.
+    private static final float PLAYER_MAX_SPEED = 20;
+    // Amount to decrease the player's x-velocity each frame if no movement buttons
+    // are being pressed.
+    private static final float PLAYER_NO_MOVEMENT_DAMPING = 1.3f;
+    // Magnitude of impulse in the y-direction to apply to make the player "jump"
+    private static final float PLAYER_JUMP_IMPULSE = 60;
+
+    public enum MovementDirection {
+        LEFT,
+        RIGHT,
+        NONE,
+    }
 
     // We need to keep track of a Body and a width and height
     Body body;
@@ -67,6 +85,7 @@ class Player {
     public void makeBody(float x, float y, float r) {
         // Define a body
         BodyDef bd = new BodyDef();
+        
         // Set its position
         bd.position = box2d.coordPixelsToWorld(x, y);
         bd.type = BodyType.DYNAMIC;
@@ -78,6 +97,7 @@ class Player {
 
         FixtureDef fd = new FixtureDef();
         fd.shape = cs;
+        
         // Parameters that affect physics
         fd.density = 1;
         fd.friction = 0.05f;
@@ -85,5 +105,28 @@ class Player {
 
         // Attach fixture to body
         body.createFixture(fd);
+    }
+
+    public void movePlayer(MovementDirection movementDirection) {
+        Vec2 vel = this.body.getLinearVelocity();
+        if (movementDirection == MovementDirection.LEFT && vel.x > -PLAYER_MAX_SPEED) {
+            this.body.applyLinearImpulse(new Vec2(-PLAYER_MOVEMENT_IMPULSE, 0f), this.body.getWorldCenter());
+        } else if (movementDirection == MovementDirection.RIGHT && vel.x < PLAYER_MAX_SPEED) {
+            this.body.applyLinearImpulse(new Vec2(PLAYER_MOVEMENT_IMPULSE, 0f), this.body.getWorldCenter());
+        } else if (movementDirection == MovementDirection.NONE) {
+            if (vel.x > PLAYER_NO_MOVEMENT_DAMPING) {
+                this.body.applyLinearImpulse(new Vec2(-PLAYER_NO_MOVEMENT_DAMPING, 0f), this.body.getWorldCenter());
+            } else if (vel.x < -PLAYER_NO_MOVEMENT_DAMPING) {
+                this.body.applyLinearImpulse(new Vec2(PLAYER_NO_MOVEMENT_DAMPING, 0f), this.body.getWorldCenter());
+            } else {
+                this.body.applyLinearImpulse(new Vec2(-vel.x, 0f), this.body.getWorldCenter());
+            }
+        }
+    }
+
+    public void jumpIfPossible() {
+        if (this.canMove) {
+            this.body.applyLinearImpulse(new Vec2(0, PLAYER_JUMP_IMPULSE), this.body.getWorldCenter());
+        }
     }
 }

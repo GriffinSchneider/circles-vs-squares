@@ -3,14 +3,15 @@ package circlesvssquares;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import org.jbox2d.common.Vec2;
-
 import pbox2d.PBox2D;
+
 import processing.core.PApplet;
 
 public class CirclesVsSquares extends PApplet {
 
     private static final long serialVersionUID = 7397694443868429500L;
+
+    private static final float WORLD_GRAVITY = -50;
 
     private static CirclesVsSquares instance;
     public static CirclesVsSquares instance() {
@@ -38,6 +39,7 @@ public class CirclesVsSquares extends PApplet {
         // Initialize box2d physics and create the world
         box2d = new PBox2D(this);
         box2d.createWorld();
+        box2d.setGravity(0, WORLD_GRAVITY);
 	  
         // Add a listener to listen for collisions!
         box2d.world.setContactListener(new CustomListener());
@@ -74,21 +76,21 @@ public class CirclesVsSquares extends PApplet {
     public void draw() {
         background(255);
 
-        if (player.canMove && checkKey("W")) {
-            player.body.applyLinearImpulse(new Vec2(0, 40), player.body.getWorldCenter());
-        }
-        Vec2 velocity = player.body.getLinearVelocity();
+        // Move the player if movement keys are held down
+        Player.MovementDirection direction = Player.MovementDirection.NONE;
         if (checkKey("D")) {
-            player.body.setLinearVelocity(new Vec2(10, velocity.y));
+            direction = Player.MovementDirection.RIGHT;
+        } else if (checkKey("A")) {
+            direction = Player.MovementDirection.LEFT;
         }
-        else if (checkKey("A")) {
-            player.body.setLinearVelocity(new Vec2(-10, velocity.y));
-        }
-        else {
-            player.body.setLinearVelocity(new Vec2(0, velocity.y));
+        player.movePlayer(direction);
+
+        // Attempt to jump if the jump key is held down
+        if (checkKey("W")) {
+            player.jumpIfPossible();
         }
 
-        // We must always step through time!
+        // Step the physics simulation
         box2d.step();
 
         for (int i = boundaries.size()-1; i >=0; i--) {
