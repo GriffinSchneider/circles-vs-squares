@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import org.jbox2d.common.Vec2;
 
@@ -35,6 +36,11 @@ public class CirclesVsSquares extends PApplet {
 
     ArrayList<Node> objectList;
     ArrayList<Node> toRemoveList;
+    ArrayList<Button> buttonList;
+    
+    boolean[] keys = new boolean[526];
+    boolean mousePressed = false;
+    boolean mouseClick = false;
     
     float zoom = 1;
 
@@ -61,6 +67,17 @@ public class CirclesVsSquares extends PApplet {
 
         player = new Player(200, 150, box2d);
 
+        buttonList = new ArrayList<Button>();
+        Button b = new Button(0, 0, 30, 30, new Callable() {
+            @Override
+            public Object call() throws Exception {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        buttonList.add(b);
+        
+        
         toRemoveList = new ArrayList<Node>();
         objectList = new ArrayList<Node>();
         objectList.add(new Ground(200, 200, 300, 25, box2d));
@@ -69,8 +86,10 @@ public class CirclesVsSquares extends PApplet {
         objectList.add(new Enemy(400, 250, 25, 25, box2d));
     }
 
-    boolean[] keys = new boolean[526];
-
+    void callback() {
+        
+    }
+    
     public boolean checkKey(String k) {
         for(int i = 0; i < keys.length; i++) {
             if(KeyEvent.getKeyText(i).toLowerCase().equals(k.toLowerCase())) {
@@ -97,11 +116,22 @@ public class CirclesVsSquares extends PApplet {
             zoom = 0.1f;
         }
     }
+    
+    @Override
+    public void mousePressed() {
+        mousePressed = true;
+        mouseClick = true;
+    }
+    
+    @Override
+    public void mouseReleased() {
+        mousePressed = false;
+    }
 
     @Override
     public void draw() {
         background(255);
-
+        
         if (DEBUG && checkKey("R")) {
             player.reset();
         }
@@ -122,6 +152,11 @@ public class CirclesVsSquares extends PApplet {
         
         player.update();
 
+        for (int i = buttonList.size()-1; i >=0; i--) {
+            Button b = buttonList.get(i);
+            b.update();
+        }
+        
         for (int i = objectList.size()-1; i >=0; i--) {
             Node n = objectList.get(i);
             n.update();
@@ -136,6 +171,11 @@ public class CirclesVsSquares extends PApplet {
         }
         toRemoveList.clear();
 
+        for (int i = buttonList.size()-1; i >=0; i--) {
+            Button b = buttonList.get(i);
+            b.display(width, height);
+        }
+        
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
         cvs.scale(zoom);
@@ -151,5 +191,7 @@ public class CirclesVsSquares extends PApplet {
             n.display(swidth, sheight);
         }
         cvs.popMatrix();
+        
+        mouseClick = false;
     }
 }

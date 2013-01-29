@@ -40,7 +40,7 @@ class CustomListener implements ContactListener {
                 Bullet b = (Bullet) other;
                 CirclesVsSquares cvs = CirclesVsSquares.instance();
                 cvs.toRemoveList.add(b);
-                
+
                 p.r--;
                 p.radiusChange = true;
             }
