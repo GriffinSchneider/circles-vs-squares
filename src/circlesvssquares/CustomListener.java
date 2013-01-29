@@ -33,10 +33,18 @@ class CustomListener implements ContactListener {
         else if (o2.getClass() == Player.class) {
             p = (Player) o2;
             other = o1;
-        } 
+        }
 
         if (p != null && other != null) {
-            if (other.getClass() == Ground.class) {
+            if (other.getClass() == Bullet.class) {
+                Bullet b = (Bullet) other;
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                cvs.toRemoveList.add(b);
+                
+                p.r--;
+                p.radiusChange = true;
+            }
+            else {
                 p.canMove = true;
             }
         }

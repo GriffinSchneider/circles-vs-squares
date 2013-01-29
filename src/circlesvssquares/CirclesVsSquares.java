@@ -5,6 +5,8 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
+import org.jbox2d.common.Vec2;
+
 import pbox2d.PBox2D;
 
 import processing.core.PApplet;
@@ -32,6 +34,7 @@ public class CirclesVsSquares extends PApplet {
     Player player;
 
     ArrayList<Node> objectList;
+    ArrayList<Node> toRemoveList;
     
     float zoom = 1;
 
@@ -58,9 +61,12 @@ public class CirclesVsSquares extends PApplet {
 
         player = new Player(200, 150, box2d);
 
+        toRemoveList = new ArrayList<Node>();
         objectList = new ArrayList<Node>();
         objectList.add(new Ground(200, 200, 300, 25, box2d));
         objectList.add(new Ground(400, 300, 100, 25, box2d));
+        
+        objectList.add(new Enemy(400, 250, 25, 25, box2d));
     }
 
     boolean[] keys = new boolean[526];
@@ -96,6 +102,10 @@ public class CirclesVsSquares extends PApplet {
     public void draw() {
         background(255);
 
+        if (DEBUG && checkKey("R")) {
+            player.reset();
+        }
+        
         // Move the player if movement keys are held down
         Player.MovementDirection direction = Player.MovementDirection.NONE;
         if (checkKey("D")) {
@@ -109,9 +119,22 @@ public class CirclesVsSquares extends PApplet {
         if (checkKey("W")) {
             player.jumpIfPossible();
         }
+        
+        player.update();
 
+        for (int i = objectList.size()-1; i >=0; i--) {
+            Node n = objectList.get(i);
+            n.update();
+        }
+        
         // Step the physics simulation
         box2d.step();
+        // Remove objects after box2d has stepped
+        for (int i = toRemoveList.size()-1; i >=0; i--) {
+            Node n = toRemoveList.get(i);
+            n.destroy();
+        }
+        toRemoveList.clear();
 
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();

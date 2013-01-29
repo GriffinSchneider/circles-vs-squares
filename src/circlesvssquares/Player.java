@@ -33,6 +33,7 @@ class Player extends Node {
     // We need to keep track of a Body and a width and height
     Body body;
     float r;
+    boolean radiusChange;
     Boolean canMove;
     PBox2D box2d;
 
@@ -43,9 +44,10 @@ class Player extends Node {
 
         r = 12;
         canMove = false;
+        radiusChange = false;
 
         // Add the box to the box2d world
-        makeBody(x, y, r);
+        makeBody();
         body.setUserData(this);
     }
 
@@ -62,6 +64,7 @@ class Player extends Node {
     }
 
     // Drawing the box
+    @Override
     public void display(float width, float height) {
         // We look at each body and get its screen position
         Vec2 pos = box2d.getBodyPixelCoord(body);
@@ -82,16 +85,16 @@ class Player extends Node {
         cvs.popMatrix();
     }
 
-    // This function adds the rectangle to the box2d world
-    public void makeBody(float x, float y, float r) {
-        // Define a body
-        BodyDef bd = new BodyDef();
+    public void reset() {
+        this.r = 12;
+        this.makeShape();
+        this.body.setTransform(new Vec2(-r, r), 0);
+    }
 
-        // Set its position
-        bd.position = box2d.coordPixelsToWorld(x, y);
-        bd.type = BodyType.DYNAMIC;
-        body = box2d.createBody(bd);
-
+    public void makeShape() {
+        Fixture f = this.body.getFixtureList();
+        if (f != null) this.body.destroyFixture(f);
+        
         // Make the body's shape a circle
         CircleShape cs = new CircleShape();
         cs.m_radius = box2d.scalarPixelsToWorld(r);
@@ -106,6 +109,19 @@ class Player extends Node {
 
         // Attach fixture to body
         body.createFixture(fd);
+    }
+
+    // This function adds the rectangle to the box2d world
+    public void makeBody() {
+        // Define a body
+        BodyDef bd = new BodyDef();
+
+        // Set its position
+        bd.position = box2d.coordPixelsToWorld(this.x, this.y);
+        bd.type = BodyType.DYNAMIC;
+        body = box2d.createBody(bd);
+        
+        makeShape();
     }
 
     public void movePlayer(MovementDirection movementDirection) {
@@ -129,5 +145,24 @@ class Player extends Node {
         if (this.canMove) {
             this.body.applyLinearImpulse(new Vec2(0, PLAYER_JUMP_IMPULSE), this.body.getWorldCenter());
         }
+    }
+
+    @Override
+    public void update() {
+        if (this.radiusChange) {
+            if (r <= 2) {
+                this.reset();
+            }
+            else {
+                this.makeShape();
+                this.radiusChange = false;
+            }
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+
     }
 }

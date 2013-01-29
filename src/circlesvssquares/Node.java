@@ -10,4 +10,7 @@ public abstract class Node {
     }
     
     public abstract void display(float width, float height);
+    public abstract void update();
+
+    public abstract void destroy();
  }
