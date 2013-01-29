@@ -3,6 +3,8 @@ package circlesvssquares;
 import java.awt.Color;
 import java.util.concurrent.Callable;
 
+import org.jbox2d.common.Vec2;
+
 import processing.core.PConstants;
 
 public class Button extends Node {
@@ -16,8 +18,8 @@ public class Button extends Node {
     
     private Callable callback;
     
-    Button(float x_, float y_, float w_, float h_, Callable c_) {
-        super(x_, y_);
+    Button(Vec2 pos_, float w_, float h_, Callable c_) {
+        super(pos_);
         
         this.w = w_;
         this.h = h_;
@@ -37,15 +39,15 @@ public class Button extends Node {
         
         cvs.stroke(this.stroke.getRGB());
         cvs.rectMode(PConstants.CORNER);
-        cvs.rect(x, y, w, h);
+        cvs.rect(pos.x, pos.y, w, h);
     }
 
     @Override
     public void update() {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         if (cvs.mouseClick) {
-            if(cvs.mouseX>x && cvs.mouseX <x+w && 
-                    cvs.mouseY>y && cvs.mouseY <y+h) {
+            if(cvs.mouseX>pos.x && cvs.mouseX <pos.x+w && 
+                    cvs.mouseY>pos.y && cvs.mouseY <pos.y+h) {
                 this.isDown = !this.isDown;
                 try {
                     callback.call();

@@ -68,7 +68,7 @@ public class CirclesVsSquares extends PApplet {
         player = new Player(playerPos, box2d);
 
         buttonList = new ArrayList<Button>();
-        Button b = new Button(0, 0, 30, 30, new Callable() {
+        Button b = new Button(new Vec2(), 30, 30, new Callable() {
             @Override
             public Object call() throws Exception {
                 // TODO Auto-generated method stub
