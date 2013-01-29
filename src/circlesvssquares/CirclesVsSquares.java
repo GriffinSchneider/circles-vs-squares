@@ -1,6 +1,8 @@
 package circlesvssquares;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
 import pbox2d.PBox2D;
@@ -12,6 +14,7 @@ public class CirclesVsSquares extends PApplet {
     private static final long serialVersionUID = 7397694443868429500L;
 
     private static final float WORLD_GRAVITY = -50;
+    private static final boolean DEBUG = true;
 
     private static CirclesVsSquares instance;
     public static CirclesVsSquares instance() {
@@ -29,6 +32,8 @@ public class CirclesVsSquares extends PApplet {
     Player player;
 
     ArrayList<Node> objectList;
+    
+    float zoom = 1;
 
     @Override
     public void setup() {
@@ -43,6 +48,13 @@ public class CirclesVsSquares extends PApplet {
 
         // Add a listener to listen for collisions!
         box2d.world.setContactListener(new CustomListener());
+
+        if (DEBUG) {
+            addMouseWheelListener(new MouseWheelListener() { 
+                public void mouseWheelMoved(MouseWheelEvent mwe) { 
+                    mouseWheel(mwe.getWheelRotation());
+                }}); 
+        }
 
         player = new Player(200, 150, box2d);
 
@@ -71,6 +83,14 @@ public class CirclesVsSquares extends PApplet {
     public void keyReleased() { 
         keys[keyCode] = false; 
     }
+    
+    void mouseWheel(int delta_) {
+        float delta = delta_;
+        zoom += delta / 10;
+        if (zoom <= 0) {
+            zoom = 0.1f;
+        }
+    }
 
     @Override
     public void draw() {
@@ -93,14 +113,19 @@ public class CirclesVsSquares extends PApplet {
         // Step the physics simulation
         box2d.step();
 
-        player.display(width, height);
-        
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
-        cvs.translate(width/2-player.x, height/2-player.y);
+        cvs.scale(zoom);
+        
+        float swidth = width * (1 / zoom),
+              sheight = height * (1 / zoom);
+        
+        player.display(swidth, sheight);
+
+        cvs.translate(swidth/2-player.x, sheight/2-player.y);
         for (int i = objectList.size()-1; i >=0; i--) {
             Node n = objectList.get(i);
-            n.display(width, height);
+            n.display(swidth, sheight);
         }
         cvs.popMatrix();
     }
