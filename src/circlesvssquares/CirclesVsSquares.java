@@ -3,10 +3,19 @@ package circlesvssquares;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 
 import org.jbox2d.common.Vec2;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import pbox2d.PBox2D;
 import processing.core.PApplet;
@@ -35,7 +44,6 @@ public class CirclesVsSquares extends PApplet {
 
     ArrayList<Node> objectList;
     ArrayList<Node> toRemoveList;
-    ArrayList<Button> buttonList;
     
     boolean[] keys = new boolean[526];
     boolean mousePressed = false;
@@ -67,15 +75,8 @@ public class CirclesVsSquares extends PApplet {
         Vec2 playerPos = new Vec2(200, 150);
         player = new Player(playerPos, box2d);
 
-        buttonList = new ArrayList<Button>();
-        Button b = new Button(new Vec2(), 30, 30, new Callable() {
-            @Override
-            public Object call() throws Exception {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        buttonList.add(b);
+        // Create the UI
+        if (DEBUG) createDebugUI();
         
         
         toRemoveList = new ArrayList<Node>();
@@ -85,10 +86,6 @@ public class CirclesVsSquares extends PApplet {
         
         Vec2 enemyPos = box2d.coordPixelsToWorld( new Vec2(400, 250) );
         objectList.add(new Enemy(enemyPos, 25, 25, box2d));
-    }
-
-    void callback() {
-        
     }
     
     public boolean checkKey(String k) {
@@ -152,11 +149,8 @@ public class CirclesVsSquares extends PApplet {
         }
         
         player.update();
-
-        for (int i = buttonList.size()-1; i >=0; i--) {
-            Button b = buttonList.get(i);
-            b.update();
-        }
+        
+        Button.updateButtons();
         
         for (int i = objectList.size()-1; i >=0; i--) {
             Node n = objectList.get(i);
@@ -172,10 +166,7 @@ public class CirclesVsSquares extends PApplet {
         }
         toRemoveList.clear();
 
-        for (int i = buttonList.size()-1; i >=0; i--) {
-            Button b = buttonList.get(i);
-            b.display(width, height);
-        }
+        Button.displayButtons(width, height);
         
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
@@ -194,5 +185,93 @@ public class CirclesVsSquares extends PApplet {
         cvs.popMatrix();
         
         mouseClick = false;
+    }
+    
+    void saveLevel() {
+        JSONArray level = new JSONArray();
+        // Save objects
+        for (int i = objectList.size()-1; i >=0; i--) {
+            Node n = objectList.get(i);
+            if (n.getClass() != Bullet.class) {
+                JSONObject object = new JSONObject();
+                //object.put("pos", n.pos);
+                object.put("class", n.getClass().toString());
+                
+                if (n.getClass() == Ground.class) {
+                    Ground g = (Ground) n;
+                    object.put("w", g.w);
+                    object.put("h", g.h);
+                }
+                
+                level.add(object);
+            }
+        }
+        
+        println(level);
+
+        try {
+            FileWriter file = new FileWriter("./test.json");
+            file.write(level.toJSONString());
+            file.flush();
+            file.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    void loadLevel() {
+        JSONParser parser = new JSONParser();
+        
+        try {
+            Object list = parser.parse(new FileReader("./test.json"));
+            JSONArray level = (JSONArray) list;
+            for (Object obj : level.toArray()) {
+                JSONObject node =  (JSONObject) obj;
+                
+                String sClass = (String) node.get("class");
+                if (sClass.equals(Enemy.class.toString())) {
+                    println(node.get("class"));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    void createDebugUI() {
+        Button saveButton = Button.createButton(new Vec2(), 60, 30, new Callable() {
+            @Override
+            public Object call() throws Exception {
+                saveLevel();
+                return null;
+            }
+        });
+        saveButton.text = "Save";
+        
+        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new Callable() {
+            @Override
+            public Object call() throws Exception {
+                loadLevel();
+                return null;
+            }
+        });
+        loadButton.text = "Load";
+        
+        Button groundButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new Callable() {
+            @Override
+            public Object call() throws Exception {
+                
+                return null;
+            }
+        });
+        groundButton.text = "Ground";
     }
 }
