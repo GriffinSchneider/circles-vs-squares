@@ -23,6 +23,9 @@ class Player extends Node {
     private static final float PLAYER_NO_MOVEMENT_DAMPING = 1.3f;
     // Magnitude of impulse in the y-direction to apply to make the player "jump"
     private static final float PLAYER_JUMP_IMPULSE = 60;
+    // THe density of the player is always this coefficient times 2 pi times the player's
+    // radius squared, so the player body always has equal weight.
+    private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
 
     public enum MovementDirection {
         LEFT,
@@ -102,8 +105,7 @@ class Player extends Node {
         FixtureDef fd = new FixtureDef();
         fd.shape = cs;
 
-        // Parameters that affect physics
-        fd.density = 1;
+        fd.density = PLAYER_DENSITY_COEFFIECIENT / ((float)Math.PI * r * r);
         fd.friction = 0.5f;
         fd.restitution = 0.1f;
 
