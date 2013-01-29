@@ -49,7 +49,7 @@ class Ground extends Node {
         cvs.fill(0);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
-        cvs.rect(x,y,w,h);
+        cvs.rect(pos.x,pos.y,w,h);
     }
 
     @Override

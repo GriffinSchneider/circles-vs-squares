@@ -10,11 +10,11 @@ import org.jbox2d.dynamics.FixtureDef;
 import pbox2d.PBox2D;
 import processing.core.PConstants;
 
-class Bullet extends Node {
+class Bullet extends Box2DObjectNode {
 
-    public static Bullet createSimpleBullet(float x, float y, PBox2D box2d) {
+    public static Bullet createSimpleBullet(Vec2 pos, PBox2D box2d) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
-        Bullet bullet = new Bullet(x, y, 10, 10, box2d);
+        Bullet bullet = new Bullet(pos, 10, 10, box2d);
         cvs.objectList.add(bullet);
         return bullet;
     }
@@ -22,18 +22,13 @@ class Bullet extends Node {
     // a boundary is a simple rectangle with x,y,width,and height
     float w;
     float h;
-
-    // but we also have to make a body for box2d to know about it
-    Body body;
-    PBox2D box2d;
     
     float lifeSpan = 500;
 
-    Bullet(float x,float y, float w, float h, PBox2D box2d) {
-        super(x, y);
+    Bullet(Vec2 pos, float w, float h, PBox2D box2d) {
+        super(pos, box2d);
         this.w = w;
         this.h = h;
-        this.box2d = box2d;
 
         // define the polygon
         PolygonShape sd = new PolygonShape();
@@ -45,8 +40,8 @@ class Bullet extends Node {
 
         // create the body
         BodyDef bd = new BodyDef();
-        bd.type = BodyType.KINEMATIC;
-        bd.position.set(box2d.coordPixelsToWorld(x,y));
+        bd.type = BodyType.DYNAMIC;
+        bd.position.set(pos);
         body = box2d.createBody(bd);
 
         FixtureDef fd = new FixtureDef();
@@ -64,15 +59,11 @@ class Bullet extends Node {
     // draw the boundary, if it were at an angle we'd have to do something fancier
     @Override
     public void display(float width, float height) {
-        Vec2 pos = box2d.getBodyPixelCoord(body);
-        this.x = pos.x;
-        this.y = pos.y;
-        
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.fill(255, 160, 0, lifeSpan);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
-        cvs.rect(x,y,w,h);
+        cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
     }
     
     public void destroy() {
@@ -89,10 +80,9 @@ class Bullet extends Node {
         }
     }
 
-    public void fireAtTarget(Node target) {
-        float angle = (float) Math.atan2(this.y - target.y, target.x - this.x);
-        float speed = 10;
-        
-        this.body.setLinearVelocity(new Vec2((float) (speed * Math.cos(angle)), (float) (speed * Math.sin(angle))));
+    public void fireAtTarget(Body target, float speed) {
+        Vec2 vecToTarget = target.getWorldCenter().sub(this.body.getWorldCenter());
+        Vec2 unitToTarget = vecToTarget.mul(1.0f / vecToTarget.length());
+        this.body.setLinearVelocity(unitToTarget.mul(speed));
     }
 }
