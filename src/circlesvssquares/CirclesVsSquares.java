@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import org.jbox2d.common.Vec2;
 
 import pbox2d.PBox2D;
-
 import processing.core.PApplet;
 
 public class CirclesVsSquares extends PApplet {
@@ -58,15 +57,17 @@ public class CirclesVsSquares extends PApplet {
                     mouseWheel(mwe.getWheelRotation());
                 }}); 
         }
-
-        player = new Player(200, 150, box2d);
+        
+        Vec2 playerPos = new Vec2(200, 150);
+        player = new Player(playerPos, box2d);
 
         toRemoveList = new ArrayList<Node>();
         objectList = new ArrayList<Node>();
         objectList.add(new Ground(200, 200, 300, 25, box2d));
         objectList.add(new Ground(400, 300, 100, 25, box2d));
         
-        objectList.add(new Enemy(400, 250, 25, 25, box2d));
+        Vec2 enemyPos = box2d.coordPixelsToWorld( new Vec2(400, 250) );
+        objectList.add(new Enemy(enemyPos, 25, 25, box2d));
     }
 
     boolean[] keys = new boolean[526];
@@ -145,7 +146,7 @@ public class CirclesVsSquares extends PApplet {
         
         player.display(swidth, sheight);
 
-        cvs.translate(swidth/2-player.x, sheight/2-player.y);
+        cvs.translate(swidth/2-player.getGraphicsPosition().x, sheight/2-player.getGraphicsPosition().y);
         for (int i = objectList.size()-1; i >=0; i--) {
             Node n = objectList.get(i);
             n.display(swidth, sheight);

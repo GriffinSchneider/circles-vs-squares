@@ -2,7 +2,6 @@ package circlesvssquares;
 
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.Fixture;
@@ -11,7 +10,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import pbox2d.PBox2D;
 
 
-class Player extends Node {
+class Player extends Box2DObjectNode {
 
     // Magnitude of impulse to apply each frame in the x-direction to make the player move
     private static final float PLAYER_MOVEMENT_IMPULSE = 10;
@@ -33,24 +32,20 @@ class Player extends Node {
         NONE,
     }
 
-    // We need to keep track of a Body and a width and height
-    Body body;
     float r;
     boolean radiusChange;
     Boolean canMove;
-    PBox2D box2d;
 
     // Constructor
-    Player(float x_, float y_, PBox2D box2d) {
-        super(x_, y_);
-        this.box2d = box2d;
+    Player(Vec2 pos, PBox2D box2d) {
+        super(pos, box2d);
 
         r = 12;
         canMove = false;
         radiusChange = false;
 
         // Add the box to the box2d world
-        makeBody();
+        makeBody(pos);
         body.setUserData(this);
     }
 
@@ -59,8 +54,8 @@ class Player extends Node {
         box2d.destroyBody(body);
     }
 
-    public boolean contains(float x, float y) {
-        Vec2 worldPoint = box2d.coordPixelsToWorld(x, y);
+    public boolean contains(Vec2 targetPos) {
+        Vec2 worldPoint = box2d.coordPixelsToWorld(targetPos);
         Fixture f = body.getFixtureList();
         boolean inside = f.testPoint(worldPoint);
         return inside;
@@ -69,10 +64,6 @@ class Player extends Node {
     // Drawing the box
     @Override
     public void display(float width, float height) {
-        // We look at each body and get its screen position
-        Vec2 pos = box2d.getBodyPixelCoord(body);
-        this.x = pos.x;
-        this.y = pos.y;
         // Get its angle of rotation
         float a = body.getAngle();
         CirclesVsSquares cvs = CirclesVsSquares.instance();
@@ -114,12 +105,12 @@ class Player extends Node {
     }
 
     // This function adds the rectangle to the box2d world
-    public void makeBody() {
+    public void makeBody(Vec2 pos) {
         // Define a body
         BodyDef bd = new BodyDef();
 
         // Set its position
-        bd.position = box2d.coordPixelsToWorld(this.x, this.y);
+        bd.position = box2d.coordPixelsToWorld(pos);
         bd.type = BodyType.DYNAMIC;
         body = box2d.createBody(bd);
         
