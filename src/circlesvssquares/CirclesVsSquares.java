@@ -17,18 +17,18 @@ public class CirclesVsSquares extends PApplet {
     public static CirclesVsSquares instance() {
         return instance; 
     }
-    
+
     public static void main(String[] args) {
         PApplet.main(new String[] { CirclesVsSquares.class.getName() });
     }
-	
+
     // A reference to our box2d world
     private PBox2D box2d;
 
     // Just a single box this time
     Player player;
 
-    ArrayList<Ground> groundList;
+    ArrayList<Node> objectList;
 
     @Override
     public void setup() {
@@ -40,15 +40,15 @@ public class CirclesVsSquares extends PApplet {
         box2d = new PBox2D(this);
         box2d.createWorld();
         box2d.setGravity(0, WORLD_GRAVITY);
-	  
+
         // Add a listener to listen for collisions!
         box2d.world.setContactListener(new CustomListener());
 
         player = new Player(200, 150, box2d);
 
-        groundList = new ArrayList<Ground>();
-        groundList.add(new Ground(200, 200, 300, 25, box2d));
-        groundList.add(new Ground(400, 300, 100, 25, box2d));
+        objectList = new ArrayList<Node>();
+        objectList.add(new Ground(200, 200, 300, 25, box2d));
+        objectList.add(new Ground(400, 300, 100, 25, box2d));
     }
 
     boolean[] keys = new boolean[526];
@@ -61,12 +61,12 @@ public class CirclesVsSquares extends PApplet {
         }
         return false;
     }
-	 
+
     @Override
     public void keyPressed() { 
         keys[keyCode] = true;
     }
-	 
+
     @Override
     public void keyReleased() { 
         keys[keyCode] = false; 
@@ -93,11 +93,15 @@ public class CirclesVsSquares extends PApplet {
         // Step the physics simulation
         box2d.step();
 
-        for (int i = groundList.size()-1; i >=0; i--) {
-            Ground b = groundList.get(i);
-            b.display();
+        player.display(width, height);
+        
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushMatrix();
+        cvs.translate(width/2-player.x, height/2-player.y);
+        for (int i = objectList.size()-1; i >=0; i--) {
+            Node n = objectList.get(i);
+            n.display(width, height);
         }
-	  
-        player.display();
+        cvs.popMatrix();
     }
 }

@@ -11,7 +11,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import pbox2d.PBox2D;
 
 
-class Player {
+class Player extends Node {
 
     // Magnitude of impulse to apply each frame in the x-direction to make the player move
     private static final float PLAYER_MOVEMENT_IMPULSE = 10;
@@ -38,13 +38,12 @@ class Player {
 
     // Constructor
     Player(float x_, float y_, PBox2D box2d) {
-        float x = x_;
-        float y = y_;
+        super(x_, y_);
         this.box2d = box2d;
-    
+
         r = 12;
         canMove = false;
-    
+
         // Add the box to the box2d world
         makeBody(x, y, r);
         body.setUserData(this);
@@ -63,14 +62,16 @@ class Player {
     }
 
     // Drawing the box
-    public void display() {
+    public void display(float width, float height) {
         // We look at each body and get its screen position
         Vec2 pos = box2d.getBodyPixelCoord(body);
+        this.x = pos.x;
+        this.y = pos.y;
         // Get its angle of rotation
         float a = body.getAngle();
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
-        cvs.translate(pos.x, pos.y);
+        cvs.translate(width/2, height/2);
         cvs.rotate(-a);
         cvs.fill(0, 255, 0);
         cvs.stroke(0);
@@ -85,7 +86,7 @@ class Player {
     public void makeBody(float x, float y, float r) {
         // Define a body
         BodyDef bd = new BodyDef();
-        
+
         // Set its position
         bd.position = box2d.coordPixelsToWorld(x, y);
         bd.type = BodyType.DYNAMIC;
@@ -97,7 +98,7 @@ class Player {
 
         FixtureDef fd = new FixtureDef();
         fd.shape = cs;
-        
+
         // Parameters that affect physics
         fd.density = 1;
         fd.friction = 0.5f;

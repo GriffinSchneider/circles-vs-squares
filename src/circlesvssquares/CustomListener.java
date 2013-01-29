@@ -24,9 +24,8 @@ class CustomListener implements ContactListener {
         Object o1 = b1.getUserData();
         Object o2 = b2.getUserData();
 
-
-	Player p = null;
-	Object other = null;
+        Player p = null;
+        Object other = null;
         if (o1.getClass() == Player.class) {
             p = (Player) o1;
             other = o2;
@@ -35,10 +34,10 @@ class CustomListener implements ContactListener {
             p = (Player) o2;
             other = o1;
         } 
-    
+
         if (p != null && other != null) {
             if (other.getClass() == Ground.class) {
-    		p.canMove = true;
+                p.canMove = true;
             }
         }
     }
@@ -55,9 +54,8 @@ class CustomListener implements ContactListener {
         Object o1 = b1.getUserData();
         Object o2 = b2.getUserData();
 
-
-	Player p = null;
-	Object other = null;
+        Player p = null;
+        Object other = null;
         if (o1.getClass() == Player.class) {
             p = (Player) o1;
             other = o2;
@@ -66,10 +64,10 @@ class CustomListener implements ContactListener {
             p = (Player) o2;
             other = o1;
         } 
-    
+
         if (p != null && other != null) {
             if (other.getClass() == Ground.class) {
-    		p.canMove = false;
+                p.canMove = false;
             }
         }
     }

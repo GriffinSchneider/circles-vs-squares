@@ -8,20 +8,17 @@ import org.jbox2d.dynamics.BodyType;
 import pbox2d.PBox2D;
 import processing.core.PConstants;
 
-class Ground {
+class Ground extends Node {
 
     // a boundary is a simple rectangle with x,y,width,and height
-    float x;
-    float y;
     float w;
     float h;
-  
+
     // but we also have to make a body for box2d to know about it
     Body b;
 
     Ground(float x,float y, float w, float h, PBox2D box2d) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
         this.w = w;
         this.h = h;
 
@@ -38,15 +35,15 @@ class Ground {
         bd.type = BodyType.STATIC;
         bd.position.set(box2d.coordPixelsToWorld(x,y));
         b = box2d.createBody(bd);
-    
+
         // attached the shape to the body using a fixture
         b.createFixture(sd,1);
-    
+
         b.setUserData(this);
     }
 
     // draw the boundary, if it were at an angle we'd have to do something fancier
-    public void display() {
+    public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.fill(0);
         cvs.stroke(0);
