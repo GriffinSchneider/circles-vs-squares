@@ -44,11 +44,11 @@ public class CirclesVsSquares extends PApplet {
 
     ArrayList<Node> objectList;
     ArrayList<Node> toRemoveList;
-    
+
     boolean[] keys = new boolean[526];
     boolean mousePressed = false;
     boolean mouseClick = false;
-    
+
     float zoom = 1;
 
     @Override
@@ -71,23 +71,26 @@ public class CirclesVsSquares extends PApplet {
                     mouseWheel(mwe.getWheelRotation());
                 }}); 
         }
-        
+
         Vec2 playerPos = new Vec2(200, 150);
         player = new Player(playerPos, box2d);
 
         // Create the UI
         if (DEBUG) createDebugUI();
-        
-        
+
+
         toRemoveList = new ArrayList<Node>();
         objectList = new ArrayList<Node>();
-        objectList.add(new Ground(200, 200, 300, 25, box2d));
-        objectList.add(new Ground(400, 300, 100, 25, box2d));
         
+        Vec2 groundPos = box2d.coordPixelsToWorld( new Vec2(200, 200) );
+        objectList.add(new Ground(groundPos, 300, 25, box2d));
+        groundPos = box2d.coordPixelsToWorld( new Vec2(300, 300) );
+        objectList.add(new Ground(groundPos, 300, 25, box2d));
+
         Vec2 enemyPos = box2d.coordPixelsToWorld( new Vec2(400, 250) );
         objectList.add(new Enemy(enemyPos, 25, 25, box2d));
     }
-    
+
     public boolean checkKey(String k) {
         for(int i = 0; i < keys.length; i++) {
             if(KeyEvent.getKeyText(i).toLowerCase().equals(k.toLowerCase())) {
@@ -106,7 +109,7 @@ public class CirclesVsSquares extends PApplet {
     public void keyReleased() { 
         keys[keyCode] = false; 
     }
-    
+
     void mouseWheel(int delta_) {
         float delta = delta_;
         zoom += delta / 10;
@@ -114,13 +117,13 @@ public class CirclesVsSquares extends PApplet {
             zoom = 0.1f;
         }
     }
-    
+
     @Override
     public void mousePressed() {
         mousePressed = true;
         mouseClick = true;
     }
-    
+
     @Override
     public void mouseReleased() {
         mousePressed = false;
@@ -129,11 +132,11 @@ public class CirclesVsSquares extends PApplet {
     @Override
     public void draw() {
         background(255);
-        
+
         if (DEBUG && checkKey("R")) {
             player.reset();
         }
-        
+
         // Move the player if movement keys are held down
         Player.MovementDirection direction = Player.MovementDirection.NONE;
         if (checkKey("D")) {
@@ -147,16 +150,16 @@ public class CirclesVsSquares extends PApplet {
         if (checkKey("W")) {
             player.jumpIfPossible();
         }
-        
+
         player.update();
-        
+
         Button.updateButtons();
-        
+
         for (int i = objectList.size()-1; i >=0; i--) {
             Node n = objectList.get(i);
             n.update();
         }
-        
+
         // Step the physics simulation
         box2d.step();
         // Remove objects after box2d has stepped
@@ -167,14 +170,14 @@ public class CirclesVsSquares extends PApplet {
         toRemoveList.clear();
 
         Button.displayButtons(width, height);
-        
+
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
         cvs.scale(zoom);
-        
+
         float swidth = width * (1 / zoom),
-              sheight = height * (1 / zoom);
-        
+                sheight = height * (1 / zoom);
+
         player.display(swidth, sheight);
 
         cvs.translate(swidth/2-player.getGraphicsPosition().x, sheight/2-player.getGraphicsPosition().y);
@@ -183,10 +186,10 @@ public class CirclesVsSquares extends PApplet {
             n.display(swidth, sheight);
         }
         cvs.popMatrix();
-        
+
         mouseClick = false;
     }
-    
+
     void saveLevel() {
         JSONArray level = new JSONArray();
         // Save objects
@@ -194,19 +197,25 @@ public class CirclesVsSquares extends PApplet {
             Node n = objectList.get(i);
             if (n.getClass() != Bullet.class) {
                 JSONObject object = new JSONObject();
-                //object.put("pos", n.pos);
+                object.put("x", new Float(n.pos.x));
+                object.put("y", new Float(n.pos.y));
                 object.put("class", n.getClass().toString());
-                
+
                 if (n.getClass() == Ground.class) {
                     Ground g = (Ground) n;
-                    object.put("w", g.w);
-                    object.put("h", g.h);
+                    object.put("w", new Float(g.w));
+                    object.put("h", new Float(g.h));
                 }
-                
+                else if (n.getClass() == Enemy.class) {
+                    Enemy e = (Enemy) n;
+                    object.put("w", new Float(e.w));
+                    object.put("h", new Float(e.h));
+                }
+
                 level.add(object);
             }
         }
-        
+
         println(level);
 
         try {
@@ -215,37 +224,46 @@ public class CirclesVsSquares extends PApplet {
             file.flush();
             file.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-    
+
     void loadLevel() {
         JSONParser parser = new JSONParser();
-        
+
         try {
             Object list = parser.parse(new FileReader("./test.json"));
             JSONArray level = (JSONArray) list;
             for (Object obj : level.toArray()) {
                 JSONObject node =  (JSONObject) obj;
-                
+
                 String sClass = (String) node.get("class");
-                if (sClass.equals(Enemy.class.toString())) {
-                    println(node.get("class"));
+                float x = ((Double) node.get("x")).floatValue(),
+                        y = ((Double) node.get("y")).floatValue();
+                if (sClass.equals(Ground.class.toString())) {
+                    float w = ((Double) node.get("w")).floatValue(),
+                            h = ((Double) node.get("h")).floatValue();
+
+                    Ground g = new Ground(new Vec2(x, y), w, h, box2d);
+                    objectList.add(g);
+                }
+                else if (sClass.equals(Enemy.class.toString())) {
+                    float w = ((Double) node.get("w")).floatValue(),
+                            h = ((Double) node.get("h")).floatValue();
+
+                    Enemy e = new Enemy(new Vec2(x, y), w, h, box2d);
+                    objectList.add(e);
                 }
             }
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-    
+
     void createDebugUI() {
         Button saveButton = Button.createButton(new Vec2(), 60, 30, new Callable() {
             @Override
@@ -255,20 +273,21 @@ public class CirclesVsSquares extends PApplet {
             }
         });
         saveButton.text = "Save";
-        
+
         Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new Callable() {
             @Override
             public Object call() throws Exception {
+                objectList.clear();
                 loadLevel();
                 return null;
             }
         });
         loadButton.text = "Load";
-        
+
         Button groundButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new Callable() {
             @Override
             public Object call() throws Exception {
-                
+
                 return null;
             }
         });

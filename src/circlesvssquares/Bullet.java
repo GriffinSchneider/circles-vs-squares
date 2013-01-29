@@ -65,12 +65,6 @@ class Bullet extends Box2DObjectNode {
         cvs.rectMode(PConstants.CENTER);
         cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
     }
-    
-    public void destroy() {
-        box2d.destroyBody(this.body);
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
-        cvs.objectList.remove(this);
-    }
 
     @Override
     public void update() {

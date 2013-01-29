@@ -25,4 +25,10 @@ public abstract class Box2DObjectNode extends Node {
         return box2d.getBodyPixelCoord(this.body);
     }
 
+    @Override
+    public void destroy() {
+        box2d.destroyBody(this.body);
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.objectList.remove(this);
+    }
 }

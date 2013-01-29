@@ -68,11 +68,6 @@ class Enemy extends Box2DObjectNode {
         }
     }
 
-    @Override
-    public void destroy() {
-        // TODO Auto-generated method stub
-    }
-
     private void shoot() {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         
