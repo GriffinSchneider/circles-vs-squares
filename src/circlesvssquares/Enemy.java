@@ -16,7 +16,7 @@ class Enemy extends Box2DObjectNode {
     float h;
     
     float shotCount = 0;
-    float shotDelay = 25;
+    float shotDelay = 75;
 
     Enemy(Vec2 pos, float w, float h, PBox2D box2d) {
         super(pos, box2d);
@@ -47,6 +47,9 @@ class Enemy extends Box2DObjectNode {
         body.createFixture(fd);
 
         body.setUserData(this);
+        
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.objectList.add(this);
     }
 
     // draw the boundary, if it were at an angle we'd have to do something fancier

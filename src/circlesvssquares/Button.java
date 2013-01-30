@@ -8,20 +8,21 @@ import org.jbox2d.common.Vec2;
 
 import processing.core.PConstants;
 
-public class Button extends Node {
+public class Button {
     private static ArrayList<Button> buttonList = new ArrayList<Button>();
     
-    public static void updateButtons() {
+    public static boolean updateButtons() {
         for (int i = buttonList.size()-1; i >=0; i--) {
             Button b = buttonList.get(i);
-            b.update();
+            if (b.update()) return true;
         }
+        return false;
     }
     
-    public static void displayButtons(float width, float height) {
+    public static void displayButtons() {
         for (int i = buttonList.size()-1; i >=0; i--) {
             Button b = buttonList.get(i);
-            b.display(width, height);
+            b.display();
         }
     }
     
@@ -32,17 +33,17 @@ public class Button extends Node {
         }
     }
     
-    public static Button createButton(Vec2 pos_, float w_, float h_, Callable c_) {
+    public static Button createButton(Vec2 pos_, float w_, float h_, CustomCallable c_) {
         Button b = new Button(pos_, w_, h_, c_);
         return b;
     }
     
-    public static Button createCheckBox(Vec2 pos_, float w_, float h_, Callable c_) {
+    public static Button createCheckBox(Vec2 pos_, float w_, float h_, CustomCallable c_) {
         Button b = new Button(pos_, w_, h_, c_);
         b.isCheckbox = true;
         return b;
     }
-    
+    Vec2 pos;
     float w, 
           h;
     String text;
@@ -52,10 +53,10 @@ public class Button extends Node {
     private boolean isDown;
     private boolean isCheckbox;
     
-    private Callable callback;
+    private CustomCallable callback;
     
-    Button(Vec2 pos_, float w_, float h_, Callable c_) {
-        super(pos_);
+    Button(Vec2 pos_, float w_, float h_, CustomCallable c_) {
+        this.pos = pos_;
         
         this.text = "";
         this.w = w_;
@@ -70,8 +71,7 @@ public class Button extends Node {
         buttonList.add(this);
     }
 
-    @Override
-    public void display(float width, float height) {
+    public void display() {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         
         if (this.isDown) cvs.fill(this.fillDown.getRGB());
@@ -85,9 +85,10 @@ public class Button extends Node {
         cvs.text(this.text, pos.x+1, 20);
     }
 
-    @Override
-    public void update() {
+    public boolean update() {
         if (!isCheckbox) this.isDown = false;
+        
+        boolean wasClicked = false;
         
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         if (cvs.mouseClick) {
@@ -96,17 +97,24 @@ public class Button extends Node {
                 if (!this.isDown && this.isCheckbox) Button.uncheckButtons();
                 
                 this.isDown = !this.isDown;
+                wasClicked = true;
                 
                 try {
+                    callback.isDown = this.isDown;
                     callback.call();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+        
+        return wasClicked;
+    }
+    
+    public boolean isDown() {
+        return isDown;
     }
 
-    @Override
     public void destroy() {
         buttonList.remove(this);
     }

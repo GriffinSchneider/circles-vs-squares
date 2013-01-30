@@ -5,6 +5,7 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.Fixture;
 
 import pbox2d.PBox2D;
 import processing.core.PConstants;
@@ -20,6 +21,24 @@ class Ground extends Box2DObjectNode {
         this.w = w;
         this.h = h;
 
+        // create the body
+        BodyDef bd = new BodyDef();
+        bd.type = BodyType.STATIC;
+        bd.position.set(pos_);
+        body = box2d.createBody(bd);
+        
+        this.updateBody();
+
+        body.setUserData(this);
+        
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.objectList.add(this);
+    }
+    
+    public void updateBody() {
+        Fixture f = this.body.getFixtureList();
+        if (f != null) body.destroyFixture(f);
+        
         // define the polygon
         PolygonShape sd = new PolygonShape();
         // figure out the box2d coordinates
@@ -27,17 +46,9 @@ class Ground extends Box2DObjectNode {
         float box2dh = box2d.scalarPixelsToWorld(h/2);
         // we're just a box
         sd.setAsBox(box2dw, box2dh);
-
-        // create the body
-        BodyDef bd = new BodyDef();
-        bd.type = BodyType.STATIC;
-        bd.position.set(pos_);
-        body = box2d.createBody(bd);
-
+        
         // attached the shape to the body using a fixture
         body.createFixture(sd,1);
-
-        body.setUserData(this);
     }
 
     // draw the boundary, if it were at an angle we'd have to do something fancier

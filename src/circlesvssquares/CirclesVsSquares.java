@@ -25,7 +25,7 @@ public class CirclesVsSquares extends PApplet {
     private static final long serialVersionUID = 7397694443868429500L;
 
     private static final float WORLD_GRAVITY = -50;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static CirclesVsSquares instance;
     public static CirclesVsSquares instance() {
@@ -42,14 +42,28 @@ public class CirclesVsSquares extends PApplet {
     // Just a single box this time
     Player player;
 
-    ArrayList<Node> objectList;
-    ArrayList<Node> toRemoveList;
+    ArrayList<Box2DObjectNode> objectList;
+    ArrayList<Box2DObjectNode> toRemoveList;
 
     boolean[] keys = new boolean[526];
     boolean mousePressed = false;
     boolean mouseClick = false;
-
+    
+    boolean enablePhysics;
+    
     float zoom = 1;
+    
+    Box2DObjectNode target = null;
+    Vec2 targetPoint = null;
+    
+    ObjectTypes currentType = ObjectTypes.NONE;
+    
+    enum ObjectTypes {
+        NONE,
+        GROUND,
+        EASY_ENEMY
+    };
+    
 
     @Override
     public void setup() {
@@ -65,30 +79,25 @@ public class CirclesVsSquares extends PApplet {
         // Add a listener to listen for collisions!
         box2d.world.setContactListener(new CustomListener());
 
+        enablePhysics = !DEBUG;
         if (DEBUG) {
             addMouseWheelListener(new MouseWheelListener() { 
                 public void mouseWheelMoved(MouseWheelEvent mwe) { 
                     mouseWheel(mwe.getWheelRotation());
                 }}); 
         }
-
+        
+        toRemoveList = new ArrayList<Box2DObjectNode>();
+        objectList = new ArrayList<Box2DObjectNode>();
+        
         Vec2 playerPos = new Vec2(200, 150);
         player = new Player(playerPos, box2d);
 
         // Create the UI
         if (DEBUG) createDebugUI();
-
-
-        toRemoveList = new ArrayList<Node>();
-        objectList = new ArrayList<Node>();
+        else LevelEditor.loadLevel("../levels/level1.json", box2d);
         
-        Vec2 groundPos = box2d.coordPixelsToWorld( new Vec2(200, 200) );
-        objectList.add(new Ground(groundPos, 300, 25, box2d));
-        groundPos = box2d.coordPixelsToWorld( new Vec2(300, 300) );
-        objectList.add(new Ground(groundPos, 300, 25, box2d));
-
-        Vec2 enemyPos = box2d.coordPixelsToWorld( new Vec2(400, 250) );
-        objectList.add(new Enemy(enemyPos, 25, 25, box2d));
+    
     }
 
     public boolean checkKey(String k) {
@@ -132,165 +141,167 @@ public class CirclesVsSquares extends PApplet {
     @Override
     public void draw() {
         background(255);
+        
+        float swidth = width * (1 / zoom),
+                sheight = height * (1 / zoom);
 
-        if (DEBUG && checkKey("R")) {
-            player.reset();
+        if (DEBUG) {
+            // Check to see if a button was clicked on so multiple click commands do occur
+            boolean wasClicked = Button.updateButtons();
+            
+            if (checkKey("R")) {
+                player.reset();
+            }
+            
+            if (!wasClicked) {
+                Vec2 pos = box2d.coordPixelsToWorld(new Vec2(mouseX, mouseY)).mul(1/zoom)
+                        .add(player.getPhysicsPosition());
+                
+                switch (currentType) {
+                case NONE:
+                    break;
+                case GROUND:
+                    // Create ground object
+                    if (mouseClick && target == null) {
+                        targetPoint = pos;
+                        target = new Ground(targetPoint, 0, 0, box2d);
+                    }
+                    // Drag and drop ground object
+                    else if (target != null) {
+                        Vec2 diff = targetPoint.sub(pos);
+                        if (target.getClass() == Ground.class) {
+                            Ground g = (Ground) target;
+                            g.setPhysicsPosition(pos.add(diff.mul(0.5f)));
+                            g.w = Math.abs(box2d.scaleFactor * diff.x);
+                            g.h = Math.abs(box2d.scaleFactor * diff.y);
+                            g.updateBody();
+                        }
+                        if (!mousePressed) target = null;
+                    }
+                    break;
+                case EASY_ENEMY:
+                    if (mouseClick) {
+                        Enemy e = new Enemy(pos, 25, 25, box2d);
+                    }
+                    break;
+                }
+            }
         }
 
         // Move the player if movement keys are held down
         Player.MovementDirection direction = Player.MovementDirection.NONE;
         if (checkKey("D")) {
             direction = Player.MovementDirection.RIGHT;
+            
+            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(1, 0)));
         } else if (checkKey("A")) {
             direction = Player.MovementDirection.LEFT;
+            
+            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(-1, 0)));
         }
         player.movePlayer(direction);
 
         // Attempt to jump if the jump key is held down
         if (checkKey("W")) {
             player.jumpIfPossible();
+            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, 1)));
+        }
+        
+        if (checkKey("S")) {
+            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, -1)));
         }
 
         player.update();
 
-        Button.updateButtons();
+        if (enablePhysics) {
+        
+            for (int i = objectList.size()-1; i >=0; i--) {
+                Box2DObjectNode n = objectList.get(i);
+                n.update();
+            }
 
-        for (int i = objectList.size()-1; i >=0; i--) {
-            Node n = objectList.get(i);
-            n.update();
+            // Step the physics simulation
+            box2d.step();
         }
-
-        // Step the physics simulation
-        box2d.step();
+        
+        
         // Remove objects after box2d has stepped
         for (int i = toRemoveList.size()-1; i >=0; i--) {
-            Node n = toRemoveList.get(i);
+            Box2DObjectNode n = toRemoveList.get(i);
             n.destroy();
         }
         toRemoveList.clear();
-
-        Button.displayButtons(width, height);
 
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
         cvs.scale(zoom);
 
-        float swidth = width * (1 / zoom),
-                sheight = height * (1 / zoom);
-
         player.display(swidth, sheight);
 
         cvs.translate(swidth/2-player.getGraphicsPosition().x, sheight/2-player.getGraphicsPosition().y);
         for (int i = objectList.size()-1; i >=0; i--) {
-            Node n = objectList.get(i);
+            Box2DObjectNode n = objectList.get(i);
             n.display(swidth, sheight);
         }
         cvs.popMatrix();
-
+        
+        if (DEBUG) Button.displayButtons();
         mouseClick = false;
     }
 
-    void saveLevel() {
-        JSONArray level = new JSONArray();
-        // Save objects
-        for (int i = objectList.size()-1; i >=0; i--) {
-            Node n = objectList.get(i);
-            if (n.getClass() != Bullet.class) {
-                JSONObject object = new JSONObject();
-                object.put("x", new Float(n.pos.x));
-                object.put("y", new Float(n.pos.y));
-                object.put("class", n.getClass().toString());
-
-                if (n.getClass() == Ground.class) {
-                    Ground g = (Ground) n;
-                    object.put("w", new Float(g.w));
-                    object.put("h", new Float(g.h));
-                }
-                else if (n.getClass() == Enemy.class) {
-                    Enemy e = (Enemy) n;
-                    object.put("w", new Float(e.w));
-                    object.put("h", new Float(e.h));
-                }
-
-                level.add(object);
-            }
-        }
-
-        println(level);
-
-        try {
-            FileWriter file = new FileWriter("./test.json");
-            file.write(level.toJSONString());
-            file.flush();
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void clearObjects() {
+        while (objectList.size() > 0) {
+            objectList.get(0).destroy();
         }
     }
-
-    void loadLevel() {
-        JSONParser parser = new JSONParser();
-
-        try {
-            Object list = parser.parse(new FileReader("./test.json"));
-            JSONArray level = (JSONArray) list;
-            for (Object obj : level.toArray()) {
-                JSONObject node =  (JSONObject) obj;
-
-                String sClass = (String) node.get("class");
-                float x = ((Double) node.get("x")).floatValue(),
-                        y = ((Double) node.get("y")).floatValue();
-                if (sClass.equals(Ground.class.toString())) {
-                    float w = ((Double) node.get("w")).floatValue(),
-                            h = ((Double) node.get("h")).floatValue();
-
-                    Ground g = new Ground(new Vec2(x, y), w, h, box2d);
-                    objectList.add(g);
-                }
-                else if (sClass.equals(Enemy.class.toString())) {
-                    float w = ((Double) node.get("w")).floatValue(),
-                            h = ((Double) node.get("h")).floatValue();
-
-                    Enemy e = new Enemy(new Vec2(x, y), w, h, box2d);
-                    objectList.add(e);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
+    
     void createDebugUI() {
-        Button saveButton = Button.createButton(new Vec2(), 60, 30, new Callable() {
+        Button saveButton = Button.createButton(new Vec2(), 60, 30, new CustomCallable() {
             @Override
             public Object call() throws Exception {
-                saveLevel();
+                LevelEditor.saveLevel(objectList);
                 return null;
             }
         });
         saveButton.text = "Save";
 
-        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new Callable() {
+        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new CustomCallable() {
             @Override
             public Object call() throws Exception {
-                objectList.clear();
-                loadLevel();
+                clearObjects();
+                LevelEditor.loadLevel(null, box2d);
                 return null;
             }
         });
         loadButton.text = "Load";
 
-        Button groundButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new Callable() {
+        Button physicsButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new CustomCallable() {
             @Override
             public Object call() throws Exception {
-
+                enablePhysics = this.isDown;
+                return null;
+            }
+        });
+        physicsButton.text = "Physics";
+        
+        Button groundButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new CustomCallable() {
+            @Override
+            public Object call() throws Exception {
+                if (this.isDown) currentType = ObjectTypes.GROUND;
+                else currentType = ObjectTypes.NONE;
                 return null;
             }
         });
         groundButton.text = "Ground";
+        
+        Button enemyButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new CustomCallable() {
+            @Override
+            public Object call() throws Exception {
+                if (this.isDown) currentType = ObjectTypes.EASY_ENEMY;
+                else currentType = ObjectTypes.NONE;
+                return null;
+            }
+        });
+        enemyButton.text = "Enemy";
     }
 }

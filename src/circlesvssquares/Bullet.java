@@ -23,7 +23,7 @@ class Bullet extends Box2DObjectNode {
     float w;
     float h;
     
-    float lifeSpan = 500;
+    float lifeSpan = 400;
 
     Bullet(Vec2 pos, float w, float h, PBox2D box2d) {
         super(pos, box2d);
