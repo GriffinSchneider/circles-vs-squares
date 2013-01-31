@@ -5,7 +5,12 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
+import org.jbox2d.callbacks.QueryCallback;
+import org.jbox2d.collision.AABB;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.Fixture;
+import org.json.simple.parser.ParseException;
 
 import pbox2d.PBox2D;
 import processing.core.PApplet;
@@ -43,13 +48,14 @@ public class CirclesVsSquares extends PApplet {
     
     float zoom = 1;
     
-    Box2DObjectNode target = null;
+    Ground target = null;
     Vec2 targetPoint = null;
     
     ObjectTypes currentType = ObjectTypes.NONE;
     
     enum ObjectTypes {
         NONE,
+        DELETE,
         GROUND,
         EASY_ENEMY
     };
@@ -149,6 +155,22 @@ public class CirclesVsSquares extends PApplet {
                 switch (currentType) {
                 case NONE:
                     break;
+                case DELETE:
+                    if (mouseClick) {
+                        AABB aabb = new AABB(pos.sub(new Vec2(0.0001f, 0.0001f)), 
+                                pos.add(new Vec2(0.0001f, 0.0001f)));
+                        
+                        PointQueryCallback callback = new PointQueryCallback(pos);
+                        box2d.world.queryAABB(callback, aabb);
+                        
+                        Body selectedBody = callback.getSelectedBody();
+                        if (selectedBody != null) {
+                            Box2DObjectNode node = 
+                                    (Box2DObjectNode) selectedBody.getUserData();
+                            node.destroy();
+                        }
+                    }
+                    break;
                 case GROUND:
                     // Create ground object
                     if (mouseClick && target == null) {
@@ -158,14 +180,15 @@ public class CirclesVsSquares extends PApplet {
                     // Drag and drop ground object
                     else if (target != null) {
                         Vec2 diff = targetPoint.sub(pos);
-                        if (target.getClass() == Ground.class) {
-                            Ground g = (Ground) target;
-                            g.setPhysicsPosition(pos.add(diff.mul(0.5f)));
-                            g.w = Math.abs(box2d.scaleFactor * diff.x);
-                            g.h = Math.abs(box2d.scaleFactor * diff.y);
-                            g.updateBody();
+                        target.setPhysicsPosition(pos.add(diff.mul(0.5f)));
+                        target.w = Math.abs(box2d.scaleFactor * diff.x);
+                        target.h = Math.abs(box2d.scaleFactor * diff.y);
+                        target.updateBody();
+                        if (!mousePressed) {
+                            // If the width or height < 3 destroy the object
+                            if (target.w < 3 || target.h < 3) target.destroy();
+                            target = null;
                         }
-                        if (!mousePressed) target = null;
                     }
                     break;
                 case EASY_ENEMY:
@@ -277,7 +300,19 @@ public class CirclesVsSquares extends PApplet {
         });
         physicsButton.text = "Physics";
         
-        Button groundButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
+        Button deleteButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                if (this.isDown) {
+                    currentType = ObjectTypes.DELETE;
+                } else {
+                    currentType = ObjectTypes.NONE;
+                }
+            }
+        });
+        deleteButton.text = "Delete";
+        
+        Button groundButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
@@ -289,7 +324,7 @@ public class CirclesVsSquares extends PApplet {
         });
         groundButton.text = "Ground";
         
-        Button enemyButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
+        Button enemyButton = Button.createCheckBox(new Vec2(300, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {

@@ -43,7 +43,7 @@ public class LevelEditor {
         }
 
         try {
-            FileWriter file = new FileWriter("/levels/test.json");
+            FileWriter file = new FileWriter("levels/test.json");
             file.write(level.toJSONString());
             file.flush();
             file.close();
@@ -54,7 +54,7 @@ public class LevelEditor {
 
     public static void loadLevel(String slevel, PBox2D box2d) {
         if (slevel == null) {
-            slevel = "levels/test.json";
+            slevel = "../levels/test.json";
         }
         JSONParser parser = new JSONParser();
 
