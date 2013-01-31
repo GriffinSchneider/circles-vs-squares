@@ -47,6 +47,12 @@ public class CirclesVsSquares extends PApplet {
     boolean enablePhysics;
     
     float zoom = 1;
+    Zoom zoomType = Zoom.NONE;
+    enum Zoom {
+        NONE,
+        IN,
+        OUT
+    };
     
     Ground target = null;
     Vec2 targetPoint = null;
@@ -115,12 +121,9 @@ public class CirclesVsSquares extends PApplet {
         keys[keyCode] = false; 
     }
 
-    void mouseWheel(int delta_) {
-        float delta = delta_;
-        zoom += delta / 10;
-        if (zoom <= 0) {
-            zoom = 0.1f;
-        }
+    void mouseWheel(int delta) {
+        if (delta < 0) zoomType = Zoom.OUT;
+        else zoomType = Zoom.IN;
     }
 
     @Override
@@ -137,6 +140,18 @@ public class CirclesVsSquares extends PApplet {
     @Override
     public void draw() {
         background(255);
+        
+        if (DEBUG) {
+            // These keys can be used as an alternative to the mouse wheel
+            if (zoomType == Zoom.IN || checkKey("=") || checkKey("+")) {
+                zoom += 0.1f;
+            }
+            if (zoomType == Zoom.OUT || checkKey("-")) {
+                zoom -= 0.1f;
+                if (zoom <= 0) zoom = 0.1f;
+            }
+            zoomType = Zoom.NONE;
+        }
         
         float screenWidth = width * (1 / zoom);
         float screenHeight = height * (1 / zoom);
