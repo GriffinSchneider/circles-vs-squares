@@ -15,7 +15,7 @@ public class CirclesVsSquares extends PApplet {
     private static final long serialVersionUID = 7397694443868429500L;
 
     private static final float WORLD_GRAVITY = -50;
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static CirclesVsSquares instance;
     public static CirclesVsSquares instance() {
