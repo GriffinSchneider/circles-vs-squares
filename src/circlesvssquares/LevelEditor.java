@@ -54,7 +54,7 @@ public class LevelEditor {
 
     public static void loadLevel(String slevel, PBox2D box2d) {
         if (slevel == null) {
-            slevel = "../levels/test.json";
+            slevel = "levels/test.json";
         }
         JSONParser parser = new JSONParser();
 

@@ -28,7 +28,10 @@ class Player extends Box2DObjectNode {
     // radius squared, so the player body always has equal weight.
     private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
 
-    private static final float PLAYER_SLOW_FIELD_RADIUS = 40.0f;
+    private static final float PLAYER_SLOW_FIELD_RADIUS = 80.0f;
+
+    public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 50.0f;
+
 
     public enum MovementDirection {
         LEFT,
@@ -161,8 +164,8 @@ class Player extends Box2DObjectNode {
         // Set its position
         bd.position = box2d.coordPixelsToWorld(this.getPhysicsPosition());
         bd.type = BodyType.DYNAMIC;
-        Body body = box2d.createBody(bd);
-        body.setUserData(this);
+        this.slowFieldBody = box2d.createBody(bd);
+        slowFieldBody.setUserData(this);
         
         // Make the body's shape a circle
         CircleShape cs = new CircleShape();
@@ -172,7 +175,7 @@ class Player extends Box2DObjectNode {
         fd.shape = cs;
 
         // Attach fixture to body
-        Fixture f = body.createFixture(fd);
+        Fixture f = slowFieldBody.createFixture(fd);
         f.setSensor(true);
 
         this.isSlowFieldActive = true;
