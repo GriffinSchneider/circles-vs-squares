@@ -97,7 +97,7 @@ public class CirclesVsSquares extends PApplet {
 
         // Create the UI
         if (DEBUG) createDebugUI();
-        else LevelEditor.loadLevel("levels/level1.json", box2d);
+        LevelEditor.loadLevel("../levels/test.json", box2d);
         
     
     }
@@ -306,8 +306,16 @@ public class CirclesVsSquares extends PApplet {
             }
         });
         loadButton.text = "Load";
+        
+        Button clearButton = Button.createButton(new Vec2(120, 0), 60, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                clearObjects();
+            }
+        });
+        clearButton.text = "Clear";
 
-        Button physicsButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new ButtonCallback() {
+        Button physicsButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 enablePhysics = this.isDown;
@@ -315,7 +323,7 @@ public class CirclesVsSquares extends PApplet {
         });
         physicsButton.text = "Physics";
         
-        Button deleteButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
+        Button deleteButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
@@ -327,7 +335,7 @@ public class CirclesVsSquares extends PApplet {
         });
         deleteButton.text = "Delete";
         
-        Button groundButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
+        Button groundButton = Button.createCheckBox(new Vec2(300, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
@@ -339,7 +347,7 @@ public class CirclesVsSquares extends PApplet {
         });
         groundButton.text = "Ground";
         
-        Button enemyButton = Button.createCheckBox(new Vec2(300, 0), 60, 30, new ButtonCallback() {
+        Button enemyButton = Button.createCheckBox(new Vec2(360, 0), 60, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
