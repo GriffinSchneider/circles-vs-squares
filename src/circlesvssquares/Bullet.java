@@ -74,14 +74,11 @@ class Bullet extends Box2DObjectNode {
             float newYVel = vel.y > 0 ? Math.min(vel.y, 0.5f) : Math.max(vel.y, -0.5f);
             // Cap speed
             this.body.setLinearVelocity(new Vec2(newXVel, newYVel));
-            // Counteract gravity
-            this.body.applyForce(new Vec2(0, 40), this.getPhysicsPosition());
             // Drag with velocity of slow field
             Vec2 slowFieldDrag = CirclesVsSquares.instance().player.body.getLinearVelocity().mul(Player.PLAYER_SLOW_FIELD_DRAG_COEFFICIENT);
             this.body.applyForce(slowFieldDrag, this.getPhysicsPosition());
-        } else {
-            // this.body.setLinearDamping(0);
         }
+        
         lifeSpan--;
         if (lifeSpan <= 0) {
             this.destroy();
