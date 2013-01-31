@@ -153,8 +153,8 @@ public class CirclesVsSquares extends PApplet {
             zoomType = Zoom.NONE;
         }
         
-        float swidth = width * (1 / zoom),
-                sheight = height * (1 / zoom);
+        float screenWidth = width * (1 / zoom);
+        float screenHeight = height * (1 / zoom);
 
         if (DEBUG) {
             // Check to see if a button was clicked on so multiple click commands do occur
@@ -165,8 +165,7 @@ public class CirclesVsSquares extends PApplet {
             }
             
             if (!wasClicked) {
-                Vec2 pos = box2d.coordPixelsToWorld(new Vec2(mouseX, mouseY)).mul(1/zoom)
-                        .add(player.getPhysicsPosition());
+                Vec2 pos = box2d.coordPixelsToWorld(new Vec2(mouseX, mouseY)).mul(1/zoom) .add(player.getPhysicsPosition());
                 
                 switch (currentType) {
                 case NONE:
@@ -239,6 +238,10 @@ public class CirclesVsSquares extends PApplet {
             if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, -1)));
         }
 
+        if (checkKey("j")) {
+            player.activateSlowField();
+        }
+
         player.update();
 
         if (enablePhysics) {
@@ -264,12 +267,15 @@ public class CirclesVsSquares extends PApplet {
         cvs.pushMatrix();
         cvs.scale(zoom);
 
-        player.display(swidth, sheight);
+        player.display(screenWidth, screenHeight);
 
-        cvs.translate(swidth/2-player.getGraphicsPosition().x, sheight/2-player.getGraphicsPosition().y);
+        // Translate so that the player body is in the center of the screen,
+        // then draw everything.
+        cvs.translate(screenWidth/2-player.getGraphicsPosition().x,
+                      screenHeight/2-player.getGraphicsPosition().y);
         for (int i = objectList.size()-1; i >=0; i--) {
             Box2DObjectNode n = objectList.get(i);
-            n.display(swidth, sheight);
+            n.display(screenWidth, screenHeight);
         }
         cvs.popMatrix();
         

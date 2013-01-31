@@ -3,8 +3,6 @@ package circlesvssquares;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.contacts.Contact;
 
 class CustomListener implements ContactListener {
@@ -14,69 +12,29 @@ class CustomListener implements ContactListener {
     // This function is called when a new collision occurs
     @Override
     public void beginContact(Contact cp) {
-        // Get both fixtures
-        Fixture f1 = cp.getFixtureA();
-        Fixture f2 = cp.getFixtureB();
-        // Get both bodies
-        Body b1 = f1.getBody();
-        Body b2 = f2.getBody();
-        // Get our objects that reference these bodies
-        Object o1 = b1.getUserData();
-        Object o2 = b2.getUserData();
+        Object o1 = cp.getFixtureA().getBody().getUserData();
+        Object o2 = cp.getFixtureB().getBody().getUserData();
 
-        Player p = null;
-        Object other = null;
-        if (o1.getClass() == Player.class) {
-            p = (Player) o1;
-            other = o2;
-        } 
-        else if (o2.getClass() == Player.class) {
-            p = (Player) o2;
-            other = o1;
+        if (o1 != null && o1 instanceof Box2DObjectNode) {
+            ((Box2DObjectNode)o1).collisionBegan(cp);
         }
 
-        if (p != null && other != null) {
-            if (other.getClass() == Bullet.class) {
-                Bullet b = (Bullet) other;
-                CirclesVsSquares cvs = CirclesVsSquares.instance();
-                cvs.toRemoveList.add(b);
-
-                p.r--;
-                p.radiusChange = true;
-            }
-            else {
-                p.canMove = true;
-            }
+        if (o2 != null && o2 instanceof Box2DObjectNode) {
+            ((Box2DObjectNode)o2).collisionBegan(cp);
         }
     }
 
     @Override
     public void endContact(Contact cp) {
-        // Get both fixtures
-        Fixture f1 = cp.getFixtureA();
-        Fixture f2 = cp.getFixtureB();
-        // Get both bodies
-        Body b1 = f1.getBody();
-        Body b2 = f2.getBody();
-        // Get our objects that reference these bodies
-        Object o1 = b1.getUserData();
-        Object o2 = b2.getUserData();
+        Object o1 = cp.getFixtureA().getBody().getUserData();
+        Object o2 = cp.getFixtureB().getBody().getUserData();
 
-        Player p = null;
-        Object other = null;
-        if (o1.getClass() == Player.class) {
-            p = (Player) o1;
-            other = o2;
-        } 
-        else if (o2.getClass() == Player.class) {
-            p = (Player) o2;
-            other = o1;
-        } 
+        if (o1 != null && o1 instanceof Box2DObjectNode) {
+            ((Box2DObjectNode)o1).collisionEnded(cp);
+        }
 
-        if (p != null && other != null) {
-            if (other.getClass() == Ground.class) {
-                p.canMove = false;
-            }
+        if (o2 != null && o2 instanceof Box2DObjectNode) {
+            ((Box2DObjectNode)o2).collisionEnded(cp);
         }
     }
 
