@@ -85,7 +85,7 @@ public class CirclesVsSquares extends PApplet {
 
         // Create the UI
         if (DEBUG) createDebugUI();
-        else LevelEditor.loadLevel("../levels/level1.json", box2d);
+        else LevelEditor.loadLevel("levels/level1.json", box2d);
         
     
     }
