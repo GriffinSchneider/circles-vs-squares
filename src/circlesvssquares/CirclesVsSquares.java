@@ -3,19 +3,9 @@ package circlesvssquares;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.Callable;
 
 import org.jbox2d.common.Vec2;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import pbox2d.PBox2D;
 import processing.core.PApplet;
@@ -256,50 +246,51 @@ public class CirclesVsSquares extends PApplet {
     }
     
     void createDebugUI() {
-        Button saveButton = Button.createButton(new Vec2(), 60, 30, new CustomCallable() {
+        Button saveButton = Button.createButton(new Vec2(), 60, 30, new ButtonCallback() {
             @Override
-            public Object call() throws Exception {
+            public void call() {
                 LevelEditor.saveLevel(objectList);
-                return null;
             }
         });
         saveButton.text = "Save";
 
-        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new CustomCallable() {
+        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new ButtonCallback() {
             @Override
-            public Object call() throws Exception {
+            public void call() {
                 clearObjects();
                 LevelEditor.loadLevel(null, box2d);
-                return null;
             }
         });
         loadButton.text = "Load";
 
-        Button physicsButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new CustomCallable() {
+        Button physicsButton = Button.createCheckBox(new Vec2(120, 0), 60, 30, new ButtonCallback() {
             @Override
-            public Object call() throws Exception {
+            public void call() {
                 enablePhysics = this.isDown;
-                return null;
             }
         });
         physicsButton.text = "Physics";
         
-        Button groundButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new CustomCallable() {
+        Button groundButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
             @Override
-            public Object call() throws Exception {
-                if (this.isDown) currentType = ObjectTypes.GROUND;
-                else currentType = ObjectTypes.NONE;
-                return null;
+            public void call() {
+                if (this.isDown) {
+                    currentType = ObjectTypes.GROUND;
+                } else {
+                    currentType = ObjectTypes.NONE;
+                }
             }
         });
         groundButton.text = "Ground";
         
-        Button enemyButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new CustomCallable() {
+        Button enemyButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
             @Override
-            public Object call() throws Exception {
-                if (this.isDown) currentType = ObjectTypes.EASY_ENEMY;
-                else currentType = ObjectTypes.NONE;
-                return null;
+            public void call() {
+                if (this.isDown) {
+                    currentType = ObjectTypes.EASY_ENEMY;
+                } else {
+                    currentType = ObjectTypes.NONE;
+                }
             }
         });
         enemyButton.text = "Enemy";
