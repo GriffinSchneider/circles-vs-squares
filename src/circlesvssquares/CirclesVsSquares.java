@@ -5,14 +5,12 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
-import org.jbox2d.callbacks.QueryCallback;
 import org.jbox2d.collision.AABB;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.Fixture;
-import org.json.simple.parser.ParseException;
 
 import pbox2d.PBox2D;
+
 import processing.core.PApplet;
 
 public class CirclesVsSquares extends PApplet {
@@ -65,12 +63,11 @@ public class CirclesVsSquares extends PApplet {
         GROUND,
         EASY_ENEMY
     };
-    
 
     @Override
     public void setup() {
         instance = this;
-        size(640, 400);
+        size(1000, 500);
         smooth();
 
         // Initialize box2d physics and create the world
@@ -97,9 +94,7 @@ public class CirclesVsSquares extends PApplet {
 
         // Create the UI
         if (DEBUG) createDebugUI();
-        LevelEditor.loadLevel("../levels/test.json", box2d);
-        
-    
+        LevelEditor.loadLevel("levels/test.json", box2d);
     }
 
     public boolean checkKey(String k) {
@@ -254,7 +249,6 @@ public class CirclesVsSquares extends PApplet {
             // Step the physics simulation
             box2d.step();
         }
-        
         
         // Remove objects after box2d has stepped
         for (int i = toRemoveList.size()-1; i >=0; i--) {

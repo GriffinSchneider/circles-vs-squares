@@ -18,7 +18,7 @@ class Player extends Box2DObjectNode {
     private static final float PLAYER_MOVEMENT_IMPULSE = 10;
     // Maximum x-velocity that the player can reach before we stop increasing the velocity
     // due to key presses.
-    private static final float PLAYER_MAX_SPEED = 20;
+    private static final float PLAYER_MAX_SPEED = 30;
     // Amount to decrease the player's x-velocity each frame if no movement buttons
     // are being pressed.
     private static final float PLAYER_NO_MOVEMENT_DAMPING = 1.3f;
@@ -32,6 +32,9 @@ class Player extends Box2DObjectNode {
 
     public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 50.0f;
 
+    public static final int PLAYER_SLOW_FIELD_COOLDOWN = 200;
+    public static final int PLAYER_SLOW_FIELD_DURATION = 150;
+
 
     public enum MovementDirection {
         LEFT,
@@ -42,6 +45,7 @@ class Player extends Box2DObjectNode {
     Body slowFieldBody;
 
     int collisionCounter = 0;
+    int framesSinceSlowField = PLAYER_SLOW_FIELD_COOLDOWN + PLAYER_SLOW_FIELD_DURATION;
     float r;
     boolean radiusChange;
     boolean isSlowFieldActive;
@@ -87,7 +91,12 @@ class Player extends Box2DObjectNode {
             cvs.ellipse(0, 0, PLAYER_SLOW_FIELD_RADIUS*2, PLAYER_SLOW_FIELD_RADIUS*2);
         }
         
-        cvs.fill(0, 255, 0);
+        if (this.framesSinceSlowField > PLAYER_SLOW_FIELD_COOLDOWN + PLAYER_SLOW_FIELD_DURATION ||
+            this.isSlowFieldActive) {
+            cvs.fill(0, 255, 0);
+        } else {
+            cvs.fill(150, 200, 150);
+        }
         cvs.stroke(0);
         cvs.strokeWeight(1);
         cvs.ellipse(0, 0, r*2, r*2);
@@ -158,27 +167,36 @@ class Player extends Box2DObjectNode {
     }
 
     public void activateSlowField() {
-        // Define a body
-        BodyDef bd = new BodyDef();
+        if (this.framesSinceSlowField > PLAYER_SLOW_FIELD_COOLDOWN + PLAYER_SLOW_FIELD_DURATION) {
+            // Define a body
+            BodyDef bd = new BodyDef();
 
-        // Set its position
-        bd.position = box2d.coordPixelsToWorld(this.getPhysicsPosition());
-        bd.type = BodyType.DYNAMIC;
-        this.slowFieldBody = box2d.createBody(bd);
-        slowFieldBody.setUserData(this);
+            // Set its position
+            bd.position = box2d.coordPixelsToWorld(this.getPhysicsPosition());
+            bd.type = BodyType.DYNAMIC;
+            this.slowFieldBody = box2d.createBody(bd);
+            slowFieldBody.setUserData(this);
         
-        // Make the body's shape a circle
-        CircleShape cs = new CircleShape();
-        cs.m_radius = box2d.scalarPixelsToWorld(PLAYER_SLOW_FIELD_RADIUS);
+            // Make the body's shape a circle
+            CircleShape cs = new CircleShape();
+            cs.m_radius = box2d.scalarPixelsToWorld(PLAYER_SLOW_FIELD_RADIUS);
 
-        FixtureDef fd = new FixtureDef();
-        fd.shape = cs;
+            FixtureDef fd = new FixtureDef();
+            fd.shape = cs;
 
-        // Attach fixture to body
-        Fixture f = slowFieldBody.createFixture(fd);
-        f.setSensor(true);
+            // Attach fixture to body
+            Fixture f = slowFieldBody.createFixture(fd);
+            f.setSensor(true);
 
-        this.isSlowFieldActive = true;
+            this.isSlowFieldActive = true;
+            this.framesSinceSlowField = 0;
+        }
+    }
+
+    public void deactivateSlowField() {
+        this.box2d.destroyBody(this.slowFieldBody);
+        this.slowFieldBody = null;
+        this.isSlowFieldActive = false;
     }
 
     @Override
@@ -193,15 +211,18 @@ class Player extends Box2DObjectNode {
             }
         }
 
+        this.framesSinceSlowField++;
         if (this.slowFieldBody != null) {
             this.slowFieldBody.setTransform(this.getPhysicsPosition(), 0);
+            if (this.framesSinceSlowField == PLAYER_SLOW_FIELD_DURATION) {
+                this.deactivateSlowField();
+            }
         }
     }
 
     @Override
     public void destroy() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
