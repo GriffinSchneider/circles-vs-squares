@@ -2,7 +2,6 @@ package circlesvssquares;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 import org.jbox2d.common.Vec2;
 
@@ -33,12 +32,12 @@ public class Button {
         }
     }
     
-    public static Button createButton(Vec2 pos_, float w_, float h_, CustomCallable c_) {
+    public static Button createButton(Vec2 pos_, float w_, float h_, ButtonCallback c_) {
         Button b = new Button(pos_, w_, h_, c_);
         return b;
     }
     
-    public static Button createCheckBox(Vec2 pos_, float w_, float h_, CustomCallable c_) {
+    public static Button createCheckBox(Vec2 pos_, float w_, float h_, ButtonCallback c_) {
         Button b = new Button(pos_, w_, h_, c_);
         b.isCheckbox = true;
         return b;
@@ -53,9 +52,9 @@ public class Button {
     private boolean isDown;
     private boolean isCheckbox;
     
-    private CustomCallable callback;
+    private ButtonCallback callback;
     
-    Button(Vec2 pos_, float w_, float h_, CustomCallable c_) {
+    Button(Vec2 pos_, float w_, float h_, ButtonCallback c_) {
         this.pos = pos_;
         
         this.text = "";
