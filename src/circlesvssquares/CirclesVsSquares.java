@@ -48,7 +48,7 @@ public class CirclesVsSquares extends PApplet {
     
     float zoom = 1;
     
-    Box2DObjectNode target = null;
+    Ground target = null;
     Vec2 targetPoint = null;
     
     ObjectTypes currentType = ObjectTypes.NONE;
@@ -150,7 +150,7 @@ public class CirclesVsSquares extends PApplet {
             }
             
             if (!wasClicked) {
-                final Vec2 pos = box2d.coordPixelsToWorld(new Vec2(mouseX, mouseY)).mul(1/zoom)
+                Vec2 pos = box2d.coordPixelsToWorld(new Vec2(mouseX, mouseY)).mul(1/zoom)
                         .add(player.getPhysicsPosition());
                 
                 switch (currentType) {
@@ -158,18 +158,18 @@ public class CirclesVsSquares extends PApplet {
                     break;
                 case DELETE:
                     if (mouseClick) {
-                        AABB aabb = new AABB();
+                        AABB aabb = new AABB(pos.sub(new Vec2(0.0001f, 0.0001f)), 
+                                pos.add(new Vec2(0.0001f, 0.0001f)));
                         
-                        final Body targetBody;
-                        box2d.world.queryAABB(new QueryCallback() {
-                            @Override
-                            public boolean reportFixture(Fixture f) {
-                                if (f.getShape().testPoint(f.getBody().getTransform(), pos))
-                                    return true;
-                                return false;
-                            }
-                            
-                        }, aabb);
+                        PointQueryCallback callback = new PointQueryCallback(pos);
+                        box2d.world.queryAABB(callback, aabb);
+                        
+                        Body selectedBody = callback.getSelectedBody();
+                        if (selectedBody != null) {
+                            Box2DObjectNode node = 
+                                    (Box2DObjectNode) selectedBody.getUserData();
+                            node.destroy();
+                        }
                     }
                     break;
                 case GROUND:
@@ -181,14 +181,15 @@ public class CirclesVsSquares extends PApplet {
                     // Drag and drop ground object
                     else if (target != null) {
                         Vec2 diff = targetPoint.sub(pos);
-                        if (target.getClass() == Ground.class) {
-                            Ground g = (Ground) target;
-                            g.setPhysicsPosition(pos.add(diff.mul(0.5f)));
-                            g.w = Math.abs(box2d.scaleFactor * diff.x);
-                            g.h = Math.abs(box2d.scaleFactor * diff.y);
-                            g.updateBody();
+                        target.setPhysicsPosition(pos.add(diff.mul(0.5f)));
+                        target.w = Math.abs(box2d.scaleFactor * diff.x);
+                        target.h = Math.abs(box2d.scaleFactor * diff.y);
+                        target.updateBody();
+                        if (!mousePressed) {
+                            // If the width or height < 3 destroy the object
+                            if (target.w < 3 || target.h < 3) target.destroy();
+                            target = null;
                         }
-                        if (!mousePressed) target = null;
                     }
                     break;
                 case EASY_ENEMY:
