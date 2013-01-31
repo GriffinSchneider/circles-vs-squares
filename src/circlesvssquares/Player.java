@@ -2,10 +2,12 @@ package circlesvssquares;
 
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.contacts.Contact;
 
 import pbox2d.PBox2D;
 
@@ -26,22 +28,26 @@ class Player extends Box2DObjectNode {
     // radius squared, so the player body always has equal weight.
     private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
 
+    private static final float PLAYER_SLOW_FIELD_RADIUS = 40.0f;
+
     public enum MovementDirection {
         LEFT,
         RIGHT,
         NONE,
     }
 
+    Body slowFieldBody;
+
+    int collisionCounter = 0;
     float r;
     boolean radiusChange;
-    Boolean canMove;
+    boolean isSlowFieldActive;
 
     // Constructor
     Player(Vec2 pos, PBox2D box2d) {
         super(pos, box2d);
 
         r = 12;
-        canMove = false;
         radiusChange = false;
 
         // Add the box to the box2d world
@@ -67,9 +73,17 @@ class Player extends Box2DObjectNode {
         // Get its angle of rotation
         float a = body.getAngle();
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+
+        // Setup transform - 
         cvs.pushMatrix();
         cvs.translate(width/2, height/2);
         cvs.rotate(-a);
+
+        if (this.isSlowFieldActive) {
+            cvs.fill(100, 255, 100);
+            cvs.ellipse(0, 0, PLAYER_SLOW_FIELD_RADIUS*2, PLAYER_SLOW_FIELD_RADIUS*2);
+        }
+        
         cvs.fill(0, 255, 0);
         cvs.stroke(0);
         cvs.strokeWeight(1);
@@ -135,9 +149,33 @@ class Player extends Box2DObjectNode {
     }
 
     public void jumpIfPossible() {
-        if (this.canMove) {
+        if (this.collisionCounter > 0) {
             this.body.applyLinearImpulse(new Vec2(0, PLAYER_JUMP_IMPULSE), this.body.getWorldCenter());
         }
+    }
+
+    public void activateSlowField() {
+        // Define a body
+        BodyDef bd = new BodyDef();
+
+        // Set its position
+        bd.position = box2d.coordPixelsToWorld(this.getPhysicsPosition());
+        bd.type = BodyType.DYNAMIC;
+        Body body = box2d.createBody(bd);
+        body.setUserData(this);
+        
+        // Make the body's shape a circle
+        CircleShape cs = new CircleShape();
+        cs.m_radius = box2d.scalarPixelsToWorld(PLAYER_SLOW_FIELD_RADIUS);
+
+        FixtureDef fd = new FixtureDef();
+        fd.shape = cs;
+
+        // Attach fixture to body
+        Fixture f = body.createFixture(fd);
+        f.setSensor(true);
+
+        this.isSlowFieldActive = true;
     }
 
     @Override
@@ -151,6 +189,10 @@ class Player extends Box2DObjectNode {
                 this.radiusChange = false;
             }
         }
+
+        if (this.slowFieldBody != null) {
+            this.slowFieldBody.setTransform(this.getPhysicsPosition(), 0);
+        }
     }
 
     @Override
@@ -158,4 +200,65 @@ class Player extends Box2DObjectNode {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public void collisionBegan(Contact cp) {
+        Body b1 = cp.getFixtureA().getBody();
+        Body b2 = cp.getFixtureB().getBody();
+
+        // If these are both our bodies, then its the player and slow field.
+        // Ignore.
+        if (b1.getUserData() == b2.getUserData()) return;
+
+        Body ourBody;
+        Body otherBody;
+        if (b1.getUserData() == this) {
+            ourBody = b1;
+            otherBody = b2;
+        } else {
+            ourBody = b2;
+            otherBody = b1;
+        }
+
+        if (ourBody == this.body) {
+            collisionCounter++;
+            if (otherBody.getUserData().getClass() == Bullet.class) {
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                cvs.toRemoveList.add((Bullet)otherBody.getUserData());
+
+                this.r--;
+                this.radiusChange = true;
+            }
+
+        } else if (ourBody == this.slowFieldBody) {
+            ((Box2DObjectNode)otherBody.getUserData()).isInSlowField = true;
+        }
+    }
+
+    @Override
+    public void collisionEnded(Contact cp) {
+        Body b1 = cp.getFixtureA().getBody();
+        Body b2 = cp.getFixtureB().getBody();
+
+        // If these are both our bodies, then its the player and slow field.
+        // Ignore.
+        if (b1.getUserData() == b2.getUserData()) return;
+
+        Body ourBody;
+        Body otherBody;
+        if (b1.getUserData() == this) {
+            ourBody = b1;
+            otherBody = b2;
+        } else {
+            ourBody = b2;
+            otherBody = b1;
+        }
+
+        if (ourBody == this.body) {
+            this.collisionCounter--;
+        } else if (ourBody == this.slowFieldBody) {
+            ((Box2DObjectNode)otherBody.getUserData()).isInSlowField = false;
+        }
+    }
+
 }
