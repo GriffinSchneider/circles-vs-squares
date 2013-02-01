@@ -76,9 +76,9 @@ public class GameScene extends Scene {
                     mouseWheel(mwe.getWheelRotation());
                 }}); 
         }
-      
-        resetPlayerAndObjects();
-        createPlayer();
+        
+        Vec2 playerPos = new Vec2(220, 150);
+        this.player = new Player(playerPos, box2d);
         
         if (editMode) createDebugUI();
         else currentType = GameMode.PHYSICS;
@@ -255,17 +255,7 @@ public class GameScene extends Scene {
     @Override
     public void cleanUp() {
         super.cleanUp();
-        
-        resetPlayerAndObjects();
-    }
-    
-    public void resetPlayerAndObjects() {
         Box2DObjectNode.clearObjects();
-    }
-    
-    public void createPlayer() {
-        Vec2 playerPos = new Vec2(220, 150);
-        this.player = new Player(playerPos, box2d);
     }
     
     void createDebugUI() {
@@ -284,8 +274,7 @@ public class GameScene extends Scene {
         Button loadButton = Button.createButton(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
-                resetPlayerAndObjects();
-                createPlayer();
+                Box2DObjectNode.clearObjects();
                 LevelEditor.loadLevel(null, box2d);
             }
         });
@@ -295,8 +284,7 @@ public class GameScene extends Scene {
         Button clearButton = Button.createButton(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
-                resetPlayerAndObjects();
-                createPlayer();
+                Box2DObjectNode.clearObjects();
             }
         });
         clearButton.text = "Clear";
