@@ -95,7 +95,6 @@ public class GameScene extends Scene {
     @Override
     public void update() {
         ArrayList<Box2DObjectNode> objectList = Box2DObjectNode.objectList;
-        ArrayList<Box2DObjectNode> toRemoveList = Box2DObjectNode.toRemoveList;
         
         if (editMode) {
             // These keys can be used as an alternative to the mouse wheel
@@ -125,8 +124,9 @@ public class GameScene extends Scene {
                     break;
                 case DELETE:
                     if (this.app.mouseClick) {
-                        AABB aabb = new AABB(pos.sub(new Vec2(0.0001f, 0.0001f)), 
-                                pos.add(new Vec2(0.0001f, 0.0001f)));
+                        Vec2 var = new Vec2(0.0001f, 0.0001f);
+                        AABB aabb = new AABB(pos.sub(var), 
+                                pos.add(var));
                         
                         PointQueryCallback callback = new PointQueryCallback(pos);
                         box2d.world.queryAABB(callback, aabb);
@@ -214,18 +214,12 @@ public class GameScene extends Scene {
             box2d.step();
         }
         
-        // Remove objects after box2d has stepped
-        for (int i = toRemoveList.size()-1; i >=0; i--) {
-            Box2DObjectNode n = toRemoveList.get(i);
-            n.destroy();
-        }
-        toRemoveList.clear();
+        Box2DObjectNode.clearToRemove();
     }
         
     @Override
     public void draw() {
         ArrayList<Box2DObjectNode> objectList = Box2DObjectNode.objectList;
-        ArrayList<Box2DObjectNode> toRemoveList = Box2DObjectNode.toRemoveList;
         
         float screenWidth = this.app.width * (1 / zoom);
         float screenHeight = this.app.height * (1 / zoom);
@@ -248,7 +242,7 @@ public class GameScene extends Scene {
         }
         cvs.popMatrix();
         
-        if (editMode) super.draw();
+        super.draw();
         this.app.mouseClick = false;
     }
     

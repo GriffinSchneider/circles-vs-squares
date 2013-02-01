@@ -10,13 +10,21 @@ import pbox2d.PBox2D;
 
 public abstract class Box2DObjectNode {
     
-    public static ArrayList<Box2DObjectNode> objectList = new ArrayList<Box2DObjectNode>();
-    public static ArrayList<Box2DObjectNode> toRemoveList = new ArrayList<Box2DObjectNode>();
+    protected static ArrayList<Box2DObjectNode> objectList = new ArrayList<Box2DObjectNode>();
+    protected static ArrayList<Box2DObjectNode> toRemoveList = new ArrayList<Box2DObjectNode>();
     
     public static void clearObjects() {
         while (objectList.size() > 0) {
             objectList.get(0).destroy();
         }
+    }
+    
+    public static void clearToRemove() {
+        for (int i = toRemoveList.size()-1; i >=0; i--) {
+            Box2DObjectNode n = toRemoveList.get(i);
+            n.destroy();
+        }
+        toRemoveList.clear();
     }
     
     public boolean isInSlowField;
