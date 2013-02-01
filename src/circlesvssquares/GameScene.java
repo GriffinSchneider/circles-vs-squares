@@ -14,12 +14,15 @@ import processing.core.PApplet;
 
 public class GameScene extends Scene {
     private static final float WORLD_GRAVITY = -50;
-    private boolean DEBUG = false;
+    public static final int MAX_LEVELS = 5;
+    
+    private boolean editMode = false;
+    public boolean isEditMode() {
+        return editMode;
+    }
 
     // A reference to our box2d world
     private PBox2D box2d;
-    
-    boolean enablePhysics;
     
     float zoom = 1;
     Zoom zoomType = Zoom.NONE;
@@ -32,18 +35,28 @@ public class GameScene extends Scene {
     Ground target = null;
     Vec2 targetPoint = null;
     
-    ObjectTypes currentType = ObjectTypes.NONE;
+    EndPoint endPoint = null;
     
-    enum ObjectTypes {
+    GameMode currentType = GameMode.NONE;
+    
+    private int currentLevel;
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+    
+    enum GameMode {
         NONE,
+        PHYSICS,
         DELETE,
         GROUND,
-        EASY_ENEMY
+        EASY_ENEMY,
+        END_POINT
     };
 
-    public GameScene(CirclesVsSquares app_, boolean levelEdit_) {
+    public GameScene(CirclesVsSquares app_, int level, boolean levelEdit_) {
         super(app_);
-        DEBUG = levelEdit_;
+        this.currentLevel = level;
+        editMode = levelEdit_;
     }
     
     public void init() {
@@ -55,8 +68,7 @@ public class GameScene extends Scene {
         // Add a listener to listen for collisions!
         box2d.world.setContactListener(new CustomListener());
 
-        enablePhysics = !DEBUG;
-        if (DEBUG) {
+        if (editMode) {
             this.app.addMouseWheelListener(new MouseWheelListener() { 
                 public void mouseWheelMoved(MouseWheelEvent mwe) { 
                     mouseWheel(mwe.getWheelRotation());
@@ -64,10 +76,13 @@ public class GameScene extends Scene {
         }
       
         resetPlayerAndObjects();
+        createPlayer();
         
-        if (DEBUG) createDebugUI();
+        if (editMode) createDebugUI();
+        else currentType = GameMode.PHYSICS;
         
-        LevelEditor.loadLevel("../levels/test.json", box2d);
+        if (editMode) LevelEditor.loadLevel("../levels/test.json", box2d);
+        else LevelEditor.loadLevel("../levels/level" + currentLevel + ".json", box2d);
     }
     
     void mouseWheel(int delta) {
@@ -81,7 +96,7 @@ public class GameScene extends Scene {
         ArrayList<Box2DObjectNode> toRemoveList = Box2DObjectNode.toRemoveList;
         Player player = Player.current;
         
-        if (DEBUG) {
+        if (editMode) {
             // These keys can be used as an alternative to the mouse wheel
             if (zoomType == Zoom.IN || this.app.checkKey("=") || this.app.checkKey("+")) {
                 zoom += 0.1f;
@@ -93,7 +108,7 @@ public class GameScene extends Scene {
             zoomType = Zoom.NONE;
         }
 
-        if (DEBUG) {
+        if (editMode) {
             // Check to see if a button was clicked on so multiple click commands do occur
             boolean wasClicked = Button.updateButtons();
             
@@ -148,6 +163,12 @@ public class GameScene extends Scene {
                         Enemy e = new Enemy(pos, 25, 25, box2d);
                     }
                     break;
+                case END_POINT:
+                    if (this.app.mouseClick) {
+                        if (endPoint != null) this.endPoint.destroy();
+                        this.endPoint = new EndPoint(pos, 25, box2d);
+                    }
+                    break;
                 }
             }
         }
@@ -157,22 +178,22 @@ public class GameScene extends Scene {
         if (this.app.checkKey("D")) {
             direction = Player.MovementDirection.RIGHT;
             
-            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(1, 0)));
+            if (currentType != GameMode.PHYSICS) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(1, 0)));
         } else if (this.app.checkKey("A")) {
             direction = Player.MovementDirection.LEFT;
             
-            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(-1, 0)));
+            if (currentType != GameMode.PHYSICS) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(-1, 0)));
         }
         player.movePlayer(direction);
 
         // Attempt to jump if the jump key is held down
         if (this.app.checkKey("W")) {
             player.jumpIfPossible();
-            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, 1)));
+            if (currentType != GameMode.PHYSICS) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, 1)));
         }
         
         if (this.app.checkKey("S")) {
-            if (!enablePhysics) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, -1)));
+            if (currentType != GameMode.PHYSICS) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, -1)));
         }
 
         if (this.app.checkKey("j")) {
@@ -181,7 +202,7 @@ public class GameScene extends Scene {
 
         player.update();
 
-        if (enablePhysics) {
+        if (currentType == GameMode.PHYSICS) {
         
             for (int i = objectList.size()-1; i >=0; i--) {
                 Box2DObjectNode n = objectList.get(i);
@@ -227,7 +248,7 @@ public class GameScene extends Scene {
         }
         cvs.popMatrix();
         
-        if (DEBUG) super.draw();
+        if (editMode) super.draw();
         this.app.mouseClick = false;
     }
     
@@ -242,8 +263,6 @@ public class GameScene extends Scene {
         Box2DObjectNode.clearObjects();
         if (Player.current != null) Player.current.destroy();
         Player.current = null;
-        
-        createPlayer();
     }
     
     public void createPlayer() {
@@ -252,73 +271,102 @@ public class GameScene extends Scene {
     }
     
     void createDebugUI() {
-        Button saveButton = Button.createButton(new Vec2(), 60, 30, new ButtonCallback() {
+        float buttonWidth = 70;
+        float buttonNum = 0;
+        
+        Button saveButton = Button.createButton(new Vec2(), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 LevelEditor.saveLevel(Box2DObjectNode.objectList);
             }
         });
         saveButton.text = "Save";
+        buttonNum++;
 
-        Button loadButton = Button.createButton(new Vec2(60, 0), 60, 30, new ButtonCallback() {
+        Button loadButton = Button.createButton(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 resetPlayerAndObjects();
+                createPlayer();
                 LevelEditor.loadLevel(null, box2d);
             }
         });
         loadButton.text = "Load";
+        buttonNum++;
         
-        Button clearButton = Button.createButton(new Vec2(120, 0), 60, 30, new ButtonCallback() {
+        Button clearButton = Button.createButton(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 resetPlayerAndObjects();
+                createPlayer();
             }
         });
         clearButton.text = "Clear";
+        buttonNum++;
 
-        Button physicsButton = Button.createCheckBox(new Vec2(180, 0), 60, 30, new ButtonCallback() {
-            @Override
-            public void call() {
-                enablePhysics = this.isDown;
-            }
-        });
-        physicsButton.text = "Physics";
-        
-        Button deleteButton = Button.createCheckBox(new Vec2(240, 0), 60, 30, new ButtonCallback() {
+        Button physicsButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
-                    currentType = ObjectTypes.DELETE;
+                    currentType = GameMode.PHYSICS;
                 } else {
-                    currentType = ObjectTypes.NONE;
+                    currentType = GameMode.NONE;
+                }
+            }
+        });
+        physicsButton.text = "Physics";
+        buttonNum++;
+        
+        Button deleteButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                if (this.isDown) {
+                    currentType = GameMode.DELETE;
+                } else {
+                    currentType = GameMode.NONE;
                 }
             }
         });
         deleteButton.text = "Delete";
+        buttonNum++;
         
-        Button groundButton = Button.createCheckBox(new Vec2(300, 0), 60, 30, new ButtonCallback() {
+        Button groundButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
-                    currentType = ObjectTypes.GROUND;
+                    currentType = GameMode.GROUND;
                 } else {
-                    currentType = ObjectTypes.NONE;
+                    currentType = GameMode.NONE;
                 }
             }
         });
         groundButton.text = "Ground";
+        buttonNum++;
         
-        Button enemyButton = Button.createCheckBox(new Vec2(360, 0), 60, 30, new ButtonCallback() {
+        Button enemyButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
-                    currentType = ObjectTypes.EASY_ENEMY;
+                    currentType = GameMode.EASY_ENEMY;
                 } else {
-                    currentType = ObjectTypes.NONE;
+                    currentType = GameMode.NONE;
                 }
             }
         });
         enemyButton.text = "Enemy";
+        buttonNum++;
+        
+        Button endButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                if (this.isDown) {
+                    currentType = GameMode.END_POINT;
+                } else {
+                    currentType = GameMode.NONE;
+                }
+            }
+        });
+        endButton.text = "End Point";
+        buttonNum++;
     }
 }

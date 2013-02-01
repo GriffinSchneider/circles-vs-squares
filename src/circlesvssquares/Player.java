@@ -253,6 +253,16 @@ class Player extends Box2DObjectNode {
                 this.r--;
                 this.radiusChange = true;
             }
+            else if (otherBody.getUserData().getClass() == EndPoint.class) {
+                // Check to see if the player is at the end point
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                GameScene scene = (GameScene) cvs.getCurrentScene();
+                // Increment the level
+                int nextLevel = scene.getCurrentLevel() + 1;
+                // If there are no more levels return to the main menu
+                if (nextLevel > GameScene.MAX_LEVELS) cvs.changeScene(new MenuScene(cvs));
+                else cvs.changeScene(new GameScene(cvs, nextLevel, scene.isEditMode()));
+            }
 
         } else if (ourBody == this.slowFieldBody) {
             ((Box2DObjectNode)otherBody.getUserData()).isInSlowField = true;

@@ -10,7 +10,10 @@ public class MenuScene extends Scene {
 
     @Override
     public void draw() {
+        this.app.background(255);
         super.draw();
+        this.app.textSize(50);
+        this.app.text("Circle vs Squares", this.app.width/2, this.app.height/2);
     }
 
     @Override
@@ -24,7 +27,7 @@ public class MenuScene extends Scene {
             @Override
             public void call() {
                 CirclesVsSquares cvs = CirclesVsSquares.instance();
-                cvs.changeScene(new GameScene(app, false));
+                cvs.changeScene(new GameScene(app, 1, false));
             }
         });
         playButton.text = "Play";
@@ -33,7 +36,7 @@ public class MenuScene extends Scene {
             @Override
             public void call() {
                 CirclesVsSquares cvs = CirclesVsSquares.instance();
-                cvs.changeScene(new GameScene(app, true));
+                cvs.changeScene(new GameScene(app, 1, true));
             }
         });
         levelButton.text = "Level Editor";

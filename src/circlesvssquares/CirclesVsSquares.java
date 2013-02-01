@@ -42,6 +42,10 @@ public class CirclesVsSquares extends PApplet {
     private Scene currentScene = null;
     private Scene nextScene = null;
     
+    public Scene getCurrentScene() {
+        return currentScene;
+    }
+    
     @Override
     public void setup() {
         instance = this;

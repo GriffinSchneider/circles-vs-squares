@@ -85,6 +85,7 @@ public class Button {
         cvs.rect(pos.x, pos.y, w, h);
         
         cvs.fill(0);
+        cvs.textSize(15);
         cvs.text(this.text, pos.x+1, pos.y+20);
     }
 

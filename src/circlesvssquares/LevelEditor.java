@@ -37,6 +37,10 @@ public class LevelEditor {
                     object.put("w", new Float(e.w));
                     object.put("h", new Float(e.h));
                 }
+                else if (n.getClass() == EndPoint.class) {
+                    EndPoint e = (EndPoint) n;
+                    object.put("r", new Float(e.r));
+                }
 
                 level.add(object);
             }
@@ -78,6 +82,11 @@ public class LevelEditor {
                             h = ((Double) node.get("h")).floatValue();
 
                     Enemy e = new Enemy(new Vec2(x, y), w, h, box2d);
+                }
+                else if (sClass.equals(EndPoint.class.toString())) {
+                    float r = ((Double) node.get("r")).floatValue();
+
+                    EndPoint e = new EndPoint(new Vec2(x, y), r, box2d);
                 }
             }
         } catch (FileNotFoundException e) {
