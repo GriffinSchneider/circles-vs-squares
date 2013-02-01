@@ -14,7 +14,7 @@ import processing.core.PApplet;
 
 public class GameScene extends Scene {
     private static final float WORLD_GRAVITY = -50;
-    private static final boolean DEBUG = false;
+    private boolean DEBUG = false;
 
     // A reference to our box2d world
     private PBox2D box2d;
@@ -41,8 +41,9 @@ public class GameScene extends Scene {
         EASY_ENEMY
     };
 
-    public GameScene(CirclesVsSquares app_) {
+    public GameScene(CirclesVsSquares app_, boolean levelEdit_) {
         super(app_);
+        DEBUG = levelEdit_;
     }
     
     public void init() {

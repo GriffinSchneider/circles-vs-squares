@@ -20,13 +20,22 @@ public class MenuScene extends Scene {
 
     @Override
     public void init() {
-        Button playButton = Button.createButton(new Vec2(this.app.width/2, this.app.height/2), 100, 100, new ButtonCallback() {
+        Button playButton = Button.createButton(new Vec2(this.app.width/2, this.app.height/2), 100, 30, new ButtonCallback() {
             @Override
             public void call() {
                 CirclesVsSquares cvs = CirclesVsSquares.instance();
-                cvs.changeScene(new GameScene(app));
+                cvs.changeScene(new GameScene(app, false));
             }
         });
         playButton.text = "Play";
+        
+        Button levelButton = Button.createButton(new Vec2(this.app.width/2, this.app.height/2 + 60), 100, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                cvs.changeScene(new GameScene(app, true));
+            }
+        });
+        levelButton.text = "Level Editor";
     }
 }
