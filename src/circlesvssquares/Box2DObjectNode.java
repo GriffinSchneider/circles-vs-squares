@@ -1,5 +1,7 @@
 package circlesvssquares;
 
+import java.util.ArrayList;
+
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.contacts.Contact;
@@ -7,6 +9,15 @@ import org.jbox2d.dynamics.contacts.Contact;
 import pbox2d.PBox2D;
 
 public abstract class Box2DObjectNode {
+    
+    public static ArrayList<Box2DObjectNode> objectList = new ArrayList<Box2DObjectNode>();
+    public static ArrayList<Box2DObjectNode> toRemoveList = new ArrayList<Box2DObjectNode>();
+    
+    public static void clearObjects() {
+        while (objectList.size() > 0) {
+            objectList.get(0).destroy();
+        }
+    }
     
     public boolean isInSlowField;
     
@@ -31,8 +42,7 @@ public abstract class Box2DObjectNode {
 
     public void destroy() {
         box2d.destroyBody(this.body);
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
-        cvs.objectList.remove(this);
+        objectList.remove(this);
     }
     
     public void collisionBegan(Contact cp) {

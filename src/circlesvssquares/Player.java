@@ -34,8 +34,9 @@ class Player extends Box2DObjectNode {
 
     public static final int PLAYER_SLOW_FIELD_COOLDOWN = 200;
     public static final int PLAYER_SLOW_FIELD_DURATION = 150;
-
-
+    
+    public static Player current;
+    
     public enum MovementDirection {
         LEFT,
         RIGHT,
@@ -247,8 +248,7 @@ class Player extends Box2DObjectNode {
         if (ourBody == this.body) {
             collisionCounter++;
             if (otherBody.getUserData().getClass() == Bullet.class) {
-                CirclesVsSquares cvs = CirclesVsSquares.instance();
-                cvs.toRemoveList.add((Bullet)otherBody.getUserData());
+                toRemoveList.add((Bullet)otherBody.getUserData());
 
                 this.r--;
                 this.radiusChange = true;

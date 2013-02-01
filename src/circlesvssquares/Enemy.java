@@ -48,8 +48,7 @@ class Enemy extends Box2DObjectNode {
 
         body.setUserData(this);
         
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
-        cvs.objectList.add(this);
+        objectList.add(this);
     }
 
     // draw the boundary, if it were at an angle we'd have to do something fancier
@@ -72,14 +71,12 @@ class Enemy extends Box2DObjectNode {
     }
 
     private void shoot() {
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
-        
         // Get a unit vector pointing from us to the player
-        Vec2 vecToPlayer = cvs.player.getPhysicsPosition().sub(this.getPhysicsPosition());
+        Vec2 vecToPlayer = Player.current.getPhysicsPosition().sub(this.getPhysicsPosition());
         Vec2 unitToPlayer = vecToPlayer.mul(1.0f / vecToPlayer.length());
         
         // Create bullet in the direction of the player, 2.5 units away from us
         Bullet bullet = Bullet.createSimpleBullet(unitToPlayer.mul(2.5f).add(this.getPhysicsPosition()), box2d);
-        bullet.fireAtTarget(cvs.player.body, 50);
+        bullet.fireAtTarget(Player.current.body, 50);
     }
 }

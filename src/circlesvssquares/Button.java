@@ -10,6 +10,10 @@ import processing.core.PConstants;
 public class Button {
     private static ArrayList<Button> buttonList = new ArrayList<Button>();
     
+    public static void removeButtons() {
+        buttonList.clear();
+    }
+    
     public static boolean updateButtons() {
         for (int i = buttonList.size()-1; i >=0; i--) {
             Button b = buttonList.get(i);
@@ -81,7 +85,7 @@ public class Button {
         cvs.rect(pos.x, pos.y, w, h);
         
         cvs.fill(0);
-        cvs.text(this.text, pos.x+1, 20);
+        cvs.text(this.text, pos.x+1, pos.y+20);
     }
 
     public boolean update() {

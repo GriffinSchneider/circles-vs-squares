@@ -13,9 +13,8 @@ import processing.core.PConstants;
 class Bullet extends Box2DObjectNode {
 
     public static Bullet createSimpleBullet(Vec2 pos, PBox2D box2d) {
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
         Bullet bullet = new Bullet(pos, 10, 10, box2d);
-        cvs.objectList.add(bullet);
+        objectList.add(bullet);
         return bullet;
     }
     
@@ -75,7 +74,7 @@ class Bullet extends Box2DObjectNode {
             // Cap speed
             this.body.setLinearVelocity(new Vec2(newXVel, newYVel));
             // Drag with velocity of slow field
-            Vec2 slowFieldDrag = CirclesVsSquares.instance().player.body.getLinearVelocity().mul(Player.PLAYER_SLOW_FIELD_DRAG_COEFFICIENT);
+            Vec2 slowFieldDrag = Player.current.body.getLinearVelocity().mul(Player.PLAYER_SLOW_FIELD_DRAG_COEFFICIENT);
             this.body.applyForce(slowFieldDrag, this.getPhysicsPosition());
         }
         

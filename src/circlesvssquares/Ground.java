@@ -30,8 +30,7 @@ class Ground extends Box2DObjectNode {
 
         body.setUserData(this);
         
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
-        cvs.objectList.add(this);
+        objectList.add(this);
     }
     
     public void updateBody() {
