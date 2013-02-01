@@ -71,12 +71,15 @@ class Enemy extends Box2DObjectNode {
     }
 
     private void shoot() {
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
+        GameScene scene = (GameScene) cvs.getCurrentScene();
+        Player player = scene.player;
         // Get a unit vector pointing from us to the player
-        Vec2 vecToPlayer = Player.current.getPhysicsPosition().sub(this.getPhysicsPosition());
+        Vec2 vecToPlayer = player.getPhysicsPosition().sub(this.getPhysicsPosition());
         Vec2 unitToPlayer = vecToPlayer.mul(1.0f / vecToPlayer.length());
         
         // Create bullet in the direction of the player, 2.5 units away from us
         Bullet bullet = Bullet.createSimpleBullet(unitToPlayer.mul(2.5f).add(this.getPhysicsPosition()), box2d);
-        bullet.fireAtTarget(Player.current.body, 50);
+        bullet.fireAtTarget(player.body, 50);
     }
 }

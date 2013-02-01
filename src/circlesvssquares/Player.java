@@ -35,8 +35,6 @@ class Player extends Box2DObjectNode {
     public static final int PLAYER_SLOW_FIELD_COOLDOWN = 200;
     public static final int PLAYER_SLOW_FIELD_DURATION = 150;
     
-    public static Player current;
-    
     public enum MovementDirection {
         LEFT,
         RIGHT,

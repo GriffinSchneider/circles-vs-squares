@@ -68,13 +68,17 @@ class Bullet extends Box2DObjectNode {
     @Override
     public void update() {
         if (this.isInSlowField) {
+            CirclesVsSquares cvs = CirclesVsSquares.instance();
+            GameScene scene = (GameScene) cvs.getCurrentScene();
+            Player player = scene.player;
+            
             Vec2 vel = this.body.getLinearVelocity();
             float newXVel = vel.x > 0 ? Math.min(vel.x, 0.5f) : Math.max(vel.x, -0.5f);
             float newYVel = vel.y > 0 ? Math.min(vel.y, 0.5f) : Math.max(vel.y, -0.5f);
             // Cap speed
             this.body.setLinearVelocity(new Vec2(newXVel, newYVel));
             // Drag with velocity of slow field
-            Vec2 slowFieldDrag = Player.current.body.getLinearVelocity().mul(Player.PLAYER_SLOW_FIELD_DRAG_COEFFICIENT);
+            Vec2 slowFieldDrag = player.body.getLinearVelocity().mul(Player.PLAYER_SLOW_FIELD_DRAG_COEFFICIENT);
             this.body.applyForce(slowFieldDrag, this.getPhysicsPosition());
         }
         

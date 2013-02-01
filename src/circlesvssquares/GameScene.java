@@ -39,6 +39,8 @@ public class GameScene extends Scene {
     
     GameMode currentType = GameMode.NONE;
     
+    Player player = null;
+    
     private int currentLevel;
     public int getCurrentLevel() {
         return currentLevel;
@@ -94,7 +96,6 @@ public class GameScene extends Scene {
     public void update() {
         ArrayList<Box2DObjectNode> objectList = Box2DObjectNode.objectList;
         ArrayList<Box2DObjectNode> toRemoveList = Box2DObjectNode.toRemoveList;
-        Player player = Player.current;
         
         if (editMode) {
             // These keys can be used as an alternative to the mouse wheel
@@ -225,7 +226,6 @@ public class GameScene extends Scene {
     public void draw() {
         ArrayList<Box2DObjectNode> objectList = Box2DObjectNode.objectList;
         ArrayList<Box2DObjectNode> toRemoveList = Box2DObjectNode.toRemoveList;
-        Player player = Player.current;
         
         float screenWidth = this.app.width * (1 / zoom);
         float screenHeight = this.app.height * (1 / zoom);
@@ -261,13 +261,11 @@ public class GameScene extends Scene {
     
     public void resetPlayerAndObjects() {
         Box2DObjectNode.clearObjects();
-        if (Player.current != null) Player.current.destroy();
-        Player.current = null;
     }
     
     public void createPlayer() {
         Vec2 playerPos = new Vec2(220, 150);
-        Player.current = new Player(playerPos, box2d);
+        this.player = new Player(playerPos, box2d);
     }
     
     void createDebugUI() {
