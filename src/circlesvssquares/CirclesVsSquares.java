@@ -9,6 +9,8 @@ import processing.core.PFont;
 
 public class CirclesVsSquares extends PApplet {
 
+    public static final boolean USE_FULLSCREEN = false;
+
     private static final long serialVersionUID = 7397694443868429500L;
 
     private static CirclesVsSquares instance;
@@ -39,12 +41,21 @@ public class CirclesVsSquares extends PApplet {
     public Scene getCurrentScene() {
         return currentScene;
     }
+
+    @Override
+    public boolean sketchFullScreen() {
+        return USE_FULLSCREEN;
+    }
     
     @Override
     public void setup() {
         instance = this;
         
-        size(1000, 500, P3D);
+        if (USE_FULLSCREEN) {
+            size(displayWidth, displayHeight, P3D);
+        } else {
+            size(1000, 500, P3D);
+        }
         
         // Setup a large font that won't look bad when it gets scaled
         PFont f = this.loadFont("UbuntuMono-Regular-50.vlw");
