@@ -91,7 +91,7 @@ class Player extends Box2DObjectNode {
 
         if (this.isSlowFieldActive) {
             // Draw slow field circle
-            cvs.fill(100, 255, 100);
+            cvs.fill(100, 255, 100, 150);
             cvs.ellipse(0, 0, PLAYER_SLOW_FIELD_RADIUS*2, PLAYER_SLOW_FIELD_RADIUS*2);
         }
         
