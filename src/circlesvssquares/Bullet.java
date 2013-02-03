@@ -13,7 +13,7 @@ import processing.core.PConstants;
 class Bullet extends Box2DObjectNode {
 
     public static Bullet createSimpleBullet(Vec2 pos, PBox2D box2d) {
-        Bullet bullet = new Bullet(pos, 10, 10, box2d);
+        Bullet bullet = new Bullet(pos, 20, 20, box2d);
         objectList.add(bullet);
         return bullet;
     }
@@ -94,3 +94,4 @@ class Bullet extends Box2DObjectNode {
         this.body.setLinearVelocity(unitToTarget.mul(speed));
     }
 }
+

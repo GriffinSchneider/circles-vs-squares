@@ -1,6 +1,5 @@
 package circlesvssquares;
 
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
@@ -8,9 +7,10 @@ import java.util.ArrayList;
 import org.jbox2d.collision.AABB;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.joints.MouseJoint;
+import org.jbox2d.dynamics.joints.MouseJointDef;
 
 import pbox2d.PBox2D;
-import processing.core.PApplet;
 
 public class GameScene extends Scene {
     private static final float WORLD_GRAVITY = -50;
@@ -40,6 +40,8 @@ public class GameScene extends Scene {
     GameMode currentType = GameMode.NONE;
     
     Player player = null;
+    
+    MouseJoint mouseJoint;
     
     private int currentLevel;
     public int getCurrentLevel() {
@@ -92,9 +94,24 @@ public class GameScene extends Scene {
         else zoomType = Zoom.IN;
     }
     
+    private Body getBodyAtPoint(Vec2 point) {
+        return this.getBodyAtPoint(point, 0.00001f);
+    }
+
+    private Body getBodyAtPoint(Vec2 point, float aabbSize) {
+        AABB aabb = new AABB(point.sub(new Vec2(aabbSize, aabbSize)), 
+                             point.add(new Vec2(aabbSize, aabbSize)));
+                        
+        PointQueryCallback callback = new PointQueryCallback(point);
+        box2d.world.queryAABB(callback, aabb);
+                        
+        return callback.getSelectedBody();
+    }
+    
     @Override
     public void update() {
         ArrayList<Box2DObjectNode> objectList = Box2DObjectNode.objectList;
+        Vec2 mousePos = box2d.coordPixelsToWorld(new Vec2(this.app.mouseX, this.app.mouseY)).mul(1/zoom) .add(player.getPhysicsPosition());
         
         if (editMode) {
             // These keys can be used as an alternative to the mouse wheel
@@ -106,9 +123,7 @@ public class GameScene extends Scene {
                 if (zoom <= 0) zoom = 0.1f;
             }
             zoomType = Zoom.NONE;
-        }
-
-        if (editMode) {
+            
             // Check to see if a button was clicked on so multiple click commands do occur
             boolean wasClicked = Button.updateButtons();
             
@@ -116,22 +131,13 @@ public class GameScene extends Scene {
                 player.reset();
             }
             
-            if (!wasClicked) {
-                Vec2 pos = box2d.coordPixelsToWorld(new Vec2(this.app.mouseX, this.app.mouseY)).mul(1/zoom) .add(player.getPhysicsPosition());
-                
+            if (!wasClicked) {            
                 switch (currentType) {
                 case NONE:
                     break;
                 case DELETE:
                     if (this.app.mouseClick) {
-                        Vec2 var = new Vec2(0.0001f, 0.0001f);
-                        AABB aabb = new AABB(pos.sub(var), 
-                                pos.add(var));
-                        
-                        PointQueryCallback callback = new PointQueryCallback(pos);
-                        box2d.world.queryAABB(callback, aabb);
-                        
-                        Body selectedBody = callback.getSelectedBody();
+                        Body selectedBody = this.getBodyAtPoint(mousePos);
                         if (selectedBody != null) {
                             Box2DObjectNode node = 
                                     (Box2DObjectNode) selectedBody.getUserData();
@@ -142,13 +148,13 @@ public class GameScene extends Scene {
                 case GROUND:
                     // Create ground object
                     if (this.app.mouseClick && target == null) {
-                        targetPoint = pos;
+                        targetPoint = mousePos;
                         target = new Ground(targetPoint, 0, 0, box2d);
                     }
                     // Drag and drop ground object
                     else if (target != null) {
-                        Vec2 diff = targetPoint.sub(pos);
-                        target.setPhysicsPosition(pos.add(diff.mul(0.5f)));
+                        Vec2 diff = targetPoint.sub(mousePos);
+                        target.setPhysicsPosition(mousePos.add(diff.mul(0.5f)));
                         target.w = Math.abs(box2d.scaleFactor * diff.x);
                         target.h = Math.abs(box2d.scaleFactor * diff.y);
                         target.updateBody();
@@ -161,15 +167,42 @@ public class GameScene extends Scene {
                     break;
                 case EASY_ENEMY:
                     if (this.app.mouseClick) {
-                        Enemy e = new Enemy(pos, 25, 25, box2d);
+                        Enemy e = new Enemy(mousePos, 25, 25, box2d);
                     }
                     break;
                 case END_POINT:
                     if (this.app.mouseClick) {
                         if (endPoint != null) this.endPoint.destroy();
-                        this.endPoint = new EndPoint(pos, 25, box2d);
+                        this.endPoint = new EndPoint(mousePos, 25, box2d);
                     }
                     break;
+                }
+            }
+        } else {
+         // Mouse was clicked, create the mouse joint
+            if (this.app.mouseClick) {
+                if (this.mouseJoint != null) {
+                    box2d.world.destroyJoint(this.mouseJoint);
+                    this.mouseJoint = null;
+                }
+                Body selectedBody = this.getBodyAtPoint(mousePos, 1.0f);
+                if (selectedBody != null && selectedBody.getUserData() != null && ((Box2DObjectNode)selectedBody.getUserData()).isInSlowField) {
+                    MouseJointDef def = new MouseJointDef();
+                    def.bodyA = box2d.getGroundBody();
+                    def.bodyB = selectedBody;
+                    def.maxForce = 5000.0f;
+                    def.target.set(mousePos);
+                    def.frequencyHz = 5.0f;
+                    this.mouseJoint = (MouseJoint)box2d.createJoint(def);
+                }
+            // Mouse was held down, and we're dragging a body. Update the mouse joint target.
+            } else if (this.mouseJoint != null && ((Box2DObjectNode)this.mouseJoint.getBodyB().getUserData()).isInSlowField && this.app.mousePressed) {
+                this.mouseJoint.setTarget(mousePos);
+            // No mouse button pressed. Destroy the mouse joint if there is one.
+            } else {
+                if (this.mouseJoint != null) {
+                    box2d.world.destroyJoint(this.mouseJoint);
+                    this.mouseJoint = null;
                 }
             }
         }
@@ -197,7 +230,7 @@ public class GameScene extends Scene {
             if (currentType != GameMode.PHYSICS) player.setPhysicsPosition(player.getPhysicsPosition().add(new Vec2(0, -1)));
         }
 
-        if (this.app.checkKey("j")) {
+        if (this.app.checkKey("F")) {
             player.activateSlowField();
         }
 

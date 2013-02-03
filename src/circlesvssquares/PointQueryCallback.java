@@ -14,9 +14,7 @@ public class PointQueryCallback implements QueryCallback {
   
     @Override
     public boolean reportFixture(Fixture fixture) {
-        if (fixture.testPoint(this.pos)) {
-            this.selectedBody = fixture.getBody();
-        }
+        this.selectedBody = fixture.getBody();
         return false;
     }
     

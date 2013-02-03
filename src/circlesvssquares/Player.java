@@ -28,12 +28,12 @@ class Player extends Box2DObjectNode {
     // radius squared, so the player body always has equal weight.
     private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
 
-    private static final float PLAYER_SLOW_FIELD_RADIUS = 80.0f;
+    private static final float PLAYER_SLOW_FIELD_RADIUS = 120.0f;
 
-    public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 50.0f;
+    public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 25.0f;
 
     public static final int PLAYER_SLOW_FIELD_COOLDOWN = 200;
-    public static final int PLAYER_SLOW_FIELD_DURATION = 150;
+    public static final int PLAYER_SLOW_FIELD_DURATION = 250;
     
     public enum MovementDirection {
         LEFT,
