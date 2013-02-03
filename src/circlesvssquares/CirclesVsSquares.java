@@ -1,5 +1,7 @@
 package circlesvssquares;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -27,8 +29,8 @@ public class CirclesVsSquares extends PApplet {
     }
 
     public boolean[] keys = new boolean[526];
-    boolean mousePressed = false;
-    boolean mouseClick = false;
+    boolean mousePressed;
+    boolean mouseClick;
     
     public boolean checkKey(String k) {
         for(int i = 0; i < keys.length; i++) {
@@ -52,14 +54,36 @@ public class CirclesVsSquares extends PApplet {
         size(1000, 500);
         smooth();
         
+        resetValues();
         nextScene = new MenuScene(this);
+        
+        this.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                resetValues();
+            }
+            
+        });
     }
 
+    private void resetValues() {
+        this.mouseClick = false;
+        this.mousePressed = false;
+    }
+    
     @Override
     public void draw() {
         if (nextScene != null) {
             if (currentScene != null) currentScene.cleanUp();
             currentScene = nextScene;
+            
+            // Reset mouseClick to avoid double clicks
+            resetValues();
             currentScene.init();
             nextScene = null;
         }

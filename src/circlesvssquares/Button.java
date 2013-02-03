@@ -64,7 +64,7 @@ public class Button {
         this.text = "";
         this.w = w_;
         this.h = h_;
-        this.fill = Color.BLUE;
+        this.fill = new Color(100, 100, 255);
         this.fillDown = Color.CYAN;
         this.stroke = Color.BLACK;
         this.isDown = false;
@@ -86,7 +86,8 @@ public class Button {
         
         cvs.fill(0);
         cvs.textSize(15);
-        cvs.text(this.text, pos.x+1, pos.y+20);
+        cvs.textAlign(cvs.CENTER);
+        cvs.text(this.text, pos.x + this.w / 2, pos.y + this.h / 2);
     }
 
     public boolean update() {
