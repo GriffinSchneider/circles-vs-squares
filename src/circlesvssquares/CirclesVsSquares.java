@@ -128,6 +128,7 @@ public class CirclesVsSquares extends PApplet {
     @Override
     public void mouseReleased() {
         mousePressed = false;
+        mouseClick = false;
     }
     
     public void changeScene(Scene scene) {
