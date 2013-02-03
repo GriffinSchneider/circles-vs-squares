@@ -135,6 +135,7 @@ public class GameScene extends Scene {
             if (!wasClicked) {            
                 switch (currentType) {
                 case NONE:
+                case PHYSICS:
                     break;
                 case DELETE:
                     if (this.app.mouseClick) {
@@ -168,7 +169,7 @@ public class GameScene extends Scene {
                     break;
                 case EASY_ENEMY:
                     if (this.app.mouseClick) {
-                        Enemy e = new Enemy(mousePos, 25, 25, box2d);
+                        new Enemy(mousePos, 25, 25, box2d);
                     }
                     break;
                 case END_POINT:

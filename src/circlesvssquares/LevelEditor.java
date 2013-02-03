@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.jbox2d.common.Vec2;
 import org.json.simple.JSONArray;
@@ -15,6 +16,18 @@ import org.json.simple.parser.ParseException;
 import pbox2d.PBox2D;
 
 public class LevelEditor {
+    // Some nastyness to prevent "References to generic type HashMap should be parameterized"
+    // warnings in saveLevel. This way, we don't need to @SuppressWarnings("unchecked") the
+    // entire method and possibly lose some real warnings.
+    @SuppressWarnings("unchecked")
+    private static Map<Object,Object> asMap(JSONObject j) {
+        return j;
+    } 
+    @SuppressWarnings("unchecked")
+    private static ArrayList<Object> asArrayList(JSONArray j) {
+        return j;
+    } 
+    
     public static void saveLevel(ArrayList<Box2DObjectNode> objectList) {
         JSONArray level = new JSONArray();
         // Save objects
@@ -23,26 +36,26 @@ public class LevelEditor {
             if (n.getClass() != Bullet.class) {
                 JSONObject object = new JSONObject();
                 Vec2 pos = n.getPhysicsPosition();
-                object.put("x", new Float(pos.x));
-                object.put("y", new Float(pos.y));
-                object.put("class", n.getClass().toString());
+                asMap(object).put("x", new Float(pos.x));
+                asMap(object).put("y", new Float(pos.y));
+                asMap(object).put("class", n.getClass().toString());
 
                 if (n.getClass() == Ground.class) {
                     Ground g = (Ground) n;
-                    object.put("w", new Float(g.w));
-                    object.put("h", new Float(g.h));
+                    asMap(object).put("w", new Float(g.w));
+                    asMap(object).put("h", new Float(g.h));
                 }
                 else if (n.getClass() == Enemy.class) {
                     Enemy e = (Enemy) n;
-                    object.put("w", new Float(e.w));
-                    object.put("h", new Float(e.h));
+                    asMap(object).put("w", new Float(e.w));
+                    asMap(object).put("h", new Float(e.h));
                 }
                 else if (n.getClass() == EndPoint.class) {
                     EndPoint e = (EndPoint) n;
-                    object.put("r", new Float(e.r));
+                    asMap(object).put("r", new Float(e.r));
                 }
 
-                level.add(object);
+                asArrayList(level).add(object);
             }
         }
 
@@ -69,24 +82,24 @@ public class LevelEditor {
                 JSONObject node =  (JSONObject) obj;
 
                 String sClass = (String) node.get("class");
-                float x = ((Double) node.get("x")).floatValue(),
-                        y = ((Double) node.get("y")).floatValue();
+                float x = ((Double) node.get("x")).floatValue();
+                float y = ((Double) node.get("y")).floatValue();
                 if (sClass.equals(Ground.class.toString())) {
-                    float w = ((Double) node.get("w")).floatValue(),
-                            h = ((Double) node.get("h")).floatValue();
+                    float w = ((Double) node.get("w")).floatValue();
+                    float h = ((Double) node.get("h")).floatValue();
 
-                    Ground g = new Ground(new Vec2(x, y), w, h, box2d);
+                    new Ground(new Vec2(x, y), w, h, box2d);
                 }
                 else if (sClass.equals(Enemy.class.toString())) {
-                    float w = ((Double) node.get("w")).floatValue(),
-                            h = ((Double) node.get("h")).floatValue();
+                    float w = ((Double) node.get("w")).floatValue();
+                    float h = ((Double) node.get("h")).floatValue();
 
-                    Enemy e = new Enemy(new Vec2(x, y), w, h, box2d);
+                    new Enemy(new Vec2(x, y), w, h, box2d);
                 }
                 else if (sClass.equals(EndPoint.class.toString())) {
                     float r = ((Double) node.get("r")).floatValue();
 
-                    EndPoint e = new EndPoint(new Vec2(x, y), r, box2d);
+                    new EndPoint(new Vec2(x, y), r, box2d);
                 }
             }
         } catch (FileNotFoundException e) {
