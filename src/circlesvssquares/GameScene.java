@@ -86,8 +86,8 @@ public class GameScene extends Scene {
         if (editMode) createDebugUI();
         else currentType = GameMode.PHYSICS;
         
-        if (editMode) LevelEditor.loadLevel("../levels/test.json", box2d);
-        else LevelEditor.loadLevel("../levels/level" + currentLevel + ".json", box2d);
+        if (editMode) LevelEditor.loadLevel("levels/test.json", box2d);
+        else LevelEditor.loadLevel("levels/level" + currentLevel + ".json", box2d);
     }
     
     void mouseWheel(int delta) {
