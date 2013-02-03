@@ -1,8 +1,5 @@
 package circlesvssquares;
 
-import java.awt.Frame;
-
-import processing.core.PApplet;
 
 public abstract class Scene {
     protected CirclesVsSquares app;

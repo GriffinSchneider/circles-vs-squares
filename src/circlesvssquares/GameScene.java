@@ -10,9 +10,8 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.joints.MouseJoint;
 import org.jbox2d.dynamics.joints.MouseJointDef;
 
-import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
-
 import pbox2d.PBox2D;
+import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
 
 public class GameScene extends Scene {
     private static final float WORLD_GRAVITY = -50;
