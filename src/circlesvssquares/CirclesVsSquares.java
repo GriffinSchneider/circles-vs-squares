@@ -5,6 +5,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 
 public class CirclesVsSquares extends PApplet {
 
@@ -42,8 +43,20 @@ public class CirclesVsSquares extends PApplet {
     @Override
     public void setup() {
         instance = this;
-        size(1000, 500);
-        smooth();
+        
+        size(1000, 500, P3D);
+        
+        // Setup a large font that won't look bed when it gets scaled
+        PFont f = this.loadFont("UbuntuMono-Regular-50.vlw");
+        this.textFont(f);
+
+        // Make window resizable
+        if (frame != null) {
+            frame.setResizable(true);
+        }
+        
+        // Antialiasing is good.
+        smooth(8);
         
         resetValues();
         nextScene = new MenuScene(this);
