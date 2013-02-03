@@ -103,7 +103,7 @@ public class GameScene extends Scene {
         AABB aabb = new AABB(point.sub(new Vec2(aabbSize, aabbSize)), 
                              point.add(new Vec2(aabbSize, aabbSize)));
                         
-        PointQueryCallback callback = new PointQueryCallback(point, filter);
+        PointQueryCallback callback = new PointQueryCallback(filter);
         box2d.world.queryAABB(callback, aabb);
                         
         return callback.getSelectedBody();
