@@ -14,6 +14,8 @@ import pbox2d.PBox2D;
 
 class Player extends Box2DObjectNode {
 
+    // Initial radius (in physics units) of the player circle
+    private static final float PLAYER_INITIAL_RADIUS = 12.0f;
     // Magnitude of impulse to apply each frame in the x-direction to make the player move
     private static final float PLAYER_MOVEMENT_IMPULSE = 10;
     // Maximum x-velocity that the player can reach before we stop increasing the velocity
@@ -24,16 +26,19 @@ class Player extends Box2DObjectNode {
     private static final float PLAYER_NO_MOVEMENT_DAMPING = 1.3f;
     // Magnitude of impulse in the y-direction to apply to make the player "jump"
     private static final float PLAYER_JUMP_IMPULSE = 60;
-    // THe density of the player is always this coefficient times 2 pi times the player's
+    // The density of the player is always this coefficient times 2 pi times the player's
     // radius squared, so the player body always has equal weight.
     private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
-
-    private static final float PLAYER_SLOW_FIELD_RADIUS = 80.0f;
-
-    public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 50.0f;
-
+    // Radius (in graphics units) of the slow field
+    private static final float PLAYER_SLOW_FIELD_RADIUS = 120.0f;
+    // Amount that objects in the slow field are dragged along with the player's movement.
+    // Higher = more drag
+    public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 25.0f;
+    // Duration (in frames) of the slow field
     public static final int PLAYER_SLOW_FIELD_COOLDOWN = 200;
-    public static final int PLAYER_SLOW_FIELD_DURATION = 150;
+    // Time (in frames) player must wait from the end of one slow field until
+    // another can be activated
+    public static final int PLAYER_SLOW_FIELD_DURATION = 250;
     
     public enum MovementDirection {
         LEFT,
@@ -53,7 +58,7 @@ class Player extends Box2DObjectNode {
     Player(Vec2 pos, PBox2D box2d) {
         super(pos, box2d);
 
-        r = 12;
+        this.r = PLAYER_INITIAL_RADIUS;
         radiusChange = false;
 
         // Add the box to the box2d world
@@ -73,23 +78,24 @@ class Player extends Box2DObjectNode {
         return inside;
     }
 
-    // Drawing the box
     @Override
     public void display(float width, float height) {
+        CirclesVsSquares cvs = CirclesVsSquares.instance();
         // Get its angle of rotation
         float a = body.getAngle();
-        CirclesVsSquares cvs = CirclesVsSquares.instance();
 
-        // Setup transform - 
+        // Setup transform matrix
         cvs.pushMatrix();
         cvs.translate(width/2, height/2);
         cvs.rotate(-a);
 
         if (this.isSlowFieldActive) {
+            // Draw slow field circle
             cvs.fill(100, 255, 100);
             cvs.ellipse(0, 0, PLAYER_SLOW_FIELD_RADIUS*2, PLAYER_SLOW_FIELD_RADIUS*2);
         }
         
+        // Draw player body circle
         if (this.framesSinceSlowField > PLAYER_SLOW_FIELD_COOLDOWN + PLAYER_SLOW_FIELD_DURATION ||
             this.isSlowFieldActive) {
             cvs.fill(0, 255, 0);
@@ -99,13 +105,15 @@ class Player extends Box2DObjectNode {
         cvs.stroke(0);
         cvs.strokeWeight(1);
         cvs.ellipse(0, 0, r*2, r*2);
-        // Let's add a line so we can see the rotation
+        
+        // Add a line so we can see rotation
         cvs.line(0, 0, r, 0);
+        
         cvs.popMatrix();
     }
 
     public void reset() {
-        this.r = 12;
+        this.r = PLAYER_INITIAL_RADIUS;
         this.makeShape();
         this.body.setTransform(new Vec2(-r, r), 0);
     }
