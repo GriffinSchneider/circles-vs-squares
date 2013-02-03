@@ -46,7 +46,7 @@ public class CirclesVsSquares extends PApplet {
         
         size(1000, 500, P3D);
         
-        // Setup a large font that won't look bed when it gets scaled
+        // Setup a large font that won't look bad when it gets scaled
         PFont f = this.loadFont("UbuntuMono-Regular-50.vlw");
         this.textFont(f);
 
