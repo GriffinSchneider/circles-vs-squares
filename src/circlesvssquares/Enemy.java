@@ -55,10 +55,12 @@ class Enemy extends Box2DObjectNode {
     @Override
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushStyle();
         cvs.fill(255, 0, 0);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
+        cvs.popStyle();
     }
 
     @Override

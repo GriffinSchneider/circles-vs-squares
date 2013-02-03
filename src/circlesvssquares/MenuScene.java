@@ -14,9 +14,10 @@ public class MenuScene extends Scene {
     public void draw() {
         this.app.background(255);
         super.draw();
+        this.app.fill(0);
         this.app.textSize(50);
         this.app.textAlign(PConstants.CENTER);
-        this.app.text("Circle vs. Squares", this.app.width/2, this.app.height/2 - 100);
+        this.app.text("Circles vs. Squares", this.app.width/2, this.app.height/2 - 100);
     }
 
     @Override

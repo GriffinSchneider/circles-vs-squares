@@ -59,10 +59,12 @@ class Bullet extends Box2DObjectNode {
     @Override
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushStyle();
         cvs.fill(255, 160, 0, lifeSpan);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
+        cvs.popStyle();
     }
 
     @Override

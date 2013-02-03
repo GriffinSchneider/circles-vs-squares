@@ -46,12 +46,15 @@ class EndPoint extends Box2DObjectNode {
     @Override
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushStyle();
         cvs.fill(0, 0, 255);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         
         Vec2 pos = this.getGraphicsPosition();
         cvs.ellipse(pos.x, pos.y, r*2, r*2);
+
+        cvs.popStyle();
     }
 
     @Override

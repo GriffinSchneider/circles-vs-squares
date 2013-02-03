@@ -76,6 +76,7 @@ public class Button {
 
     public void display() {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushStyle();
         
         if (this.isDown) cvs.fill(this.fillDown.getRGB());
         else cvs.fill(this.fill.getRGB());
@@ -88,6 +89,8 @@ public class Button {
         cvs.textSize(15);
         cvs.textAlign(PConstants.CENTER);
         cvs.text(this.text, pos.x + this.w / 2, pos.y + this.h / 2);
+        
+        cvs.popStyle();
     }
 
     public boolean update() {

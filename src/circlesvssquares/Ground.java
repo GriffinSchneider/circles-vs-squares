@@ -53,12 +53,14 @@ class Ground extends Box2DObjectNode {
     @Override
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
+        cvs.pushStyle();
         cvs.fill(0);
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         
         Vec2 pos = this.getGraphicsPosition();
         cvs.rect(pos.x,pos.y,w,h);
+        cvs.popStyle();
     }
 
     @Override

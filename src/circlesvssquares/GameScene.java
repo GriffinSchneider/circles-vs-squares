@@ -41,6 +41,8 @@ public class GameScene extends Scene {
     GameMode currentType = GameMode.NONE;
     
     Player player = null;
+
+    ParallaxBackground background = null;
     
     MouseJoint mouseJoint;
     
@@ -264,7 +266,7 @@ public class GameScene extends Scene {
         float screenWidth = this.app.width * (1 / zoom);
         float screenHeight = this.app.height * (1 / zoom);
         
-        this.app.background(255);
+        this.background.display(screenWidth, screenHeight, player.getGraphicsPosition());
         
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushMatrix();
