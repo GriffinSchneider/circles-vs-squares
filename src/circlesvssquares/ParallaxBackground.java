@@ -8,9 +8,9 @@ import processing.core.PImage;
 public class ParallaxBackground {
 
     private static int LAYERS = 4;
-    private static int BUILDINGS_PER_LAYER = 5;
+    private static int BUILDINGS_PER_LAYER = 15;
 
-    private static int MIN_BUILDING_HEIGHT = 300;
+    private static int MIN_BUILDING_HEIGHT = 100;
     private static int MAX_BUILDING_HEIGHT = 1000;
 
     private static int MIN_BUILDING_WIDTH = 60;

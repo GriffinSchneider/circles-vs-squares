@@ -67,7 +67,7 @@ public class CirclesVsSquares extends PApplet {
         }
         
         // Antialiasing is good.
-        smooth(8);
+        smooth(2);
         
         resetValues();
         nextScene = new MenuScene(this);
