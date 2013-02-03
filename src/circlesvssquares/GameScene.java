@@ -10,6 +10,8 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.joints.MouseJoint;
 import org.jbox2d.dynamics.joints.MouseJointDef;
 
+import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
+
 import pbox2d.PBox2D;
 
 public class GameScene extends Scene {
@@ -95,14 +97,14 @@ public class GameScene extends Scene {
     }
     
     private Body getBodyAtPoint(Vec2 point) {
-        return this.getBodyAtPoint(point, 0.00001f);
+        return this.getBodyAtPoint(point, 0.00001f, null);
     }
 
-    private Body getBodyAtPoint(Vec2 point, float aabbSize) {
+    private Body getBodyAtPoint(Vec2 point, float aabbSize, PointQueryCallbackFilter filter) {
         AABB aabb = new AABB(point.sub(new Vec2(aabbSize, aabbSize)), 
                              point.add(new Vec2(aabbSize, aabbSize)));
                         
-        PointQueryCallback callback = new PointQueryCallback(point);
+        PointQueryCallback callback = new PointQueryCallback(point, filter);
         box2d.world.queryAABB(callback, aabb);
                         
         return callback.getSelectedBody();
@@ -185,7 +187,12 @@ public class GameScene extends Scene {
                     box2d.world.destroyJoint(this.mouseJoint);
                     this.mouseJoint = null;
                 }
-                Body selectedBody = this.getBodyAtPoint(mousePos, 1.0f);
+                Body selectedBody = this.getBodyAtPoint(mousePos, 3.0f, new PointQueryCallbackFilter() {
+                    @Override
+                    public boolean filter(Body body) {
+                        return body.getUserData() != null && body.getUserData() instanceof Bullet;
+                    }
+                });
                 if (selectedBody != null && selectedBody.getUserData() != null && ((Box2DObjectNode)selectedBody.getUserData()).isInSlowField) {
                     MouseJointDef def = new MouseJointDef();
                     def.bodyA = box2d.getGroundBody();
