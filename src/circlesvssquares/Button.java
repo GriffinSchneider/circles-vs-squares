@@ -86,7 +86,7 @@ public class Button {
         
         cvs.fill(0);
         cvs.textSize(15);
-        cvs.textAlign(cvs.CENTER);
+        cvs.textAlign(PConstants.CENTER);
         cvs.text(this.text, pos.x + this.w / 2, pos.y + this.h / 2);
     }
 

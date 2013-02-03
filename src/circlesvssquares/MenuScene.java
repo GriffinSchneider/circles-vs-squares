@@ -2,6 +2,8 @@ package circlesvssquares;
 
 import org.jbox2d.common.Vec2;
 
+import processing.core.PConstants;
+
 public class MenuScene extends Scene {
 
     public MenuScene(CirclesVsSquares app_) {
@@ -13,7 +15,7 @@ public class MenuScene extends Scene {
         this.app.background(255);
         super.draw();
         this.app.textSize(50);
-        this.app.textAlign(this.app.CENTER);
+        this.app.textAlign(PConstants.CENTER);
         this.app.text("Circle vs. Squares", this.app.width/2, this.app.height/2 - 100);
     }
 
