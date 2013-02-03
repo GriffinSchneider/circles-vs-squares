@@ -14,7 +14,7 @@ import pbox2d.PBox2D;
 import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
 
 public class GameScene extends Scene {
-    private static final float WORLD_GRAVITY = -50;
+    private static final float WORLD_GRAVITY = -110;
     public static final int MAX_LEVELS = 5;
     
     private boolean editMode = false;

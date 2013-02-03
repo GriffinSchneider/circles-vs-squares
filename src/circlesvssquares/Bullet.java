@@ -46,8 +46,8 @@ class Bullet extends Box2DObjectNode {
         FixtureDef fd = new FixtureDef();
         fd.shape = sd;
         fd.density = 3;
-        fd.friction = 1;
-        fd.restitution = 0.1f;
+        fd.friction = 0.35f;
+        fd.restitution = 0.2f;
 
         // attached the shape to the body using a fixture
         body.createFixture(fd);
