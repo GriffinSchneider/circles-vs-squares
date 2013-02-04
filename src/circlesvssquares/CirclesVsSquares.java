@@ -70,7 +70,7 @@ public class CirclesVsSquares extends PApplet {
         smooth(2);
         
         resetValues();
-        nextScene = new GameOverScene(this);
+        nextScene = new MenuScene(this);
         
         this.addFocusListener(new FocusListener() {
 
