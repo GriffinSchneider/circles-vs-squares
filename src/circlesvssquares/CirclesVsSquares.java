@@ -52,7 +52,7 @@ public class CirclesVsSquares extends PApplet {
         instance = this;
         
         if (USE_FULLSCREEN) {
-            size(displayWidth, displayHeight, P3D);
+            size(displayWidth, displayHeight, OPENGL);
         } else {
             size(1000, 500, P3D);
         }
