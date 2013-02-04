@@ -20,6 +20,8 @@ import org.json.simple.parser.ParseException;
 import pbox2d.PBox2D;
 
 public class LevelEditor {
+    private static String lastFileName;
+    
     // Some nastyness to prevent "References to generic type HashMap should be parameterized"
     // warnings in saveLevel. This way, we don't need to @SuppressWarnings("unchecked") the
     // entire method and possibly lose some real warnings.
@@ -63,13 +65,29 @@ public class LevelEditor {
             }
         }
 
-        try {
-            FileWriter file = new FileWriter("levels/test.json");
-            file.write(level.toJSONString());
-            file.flush();
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        try { 
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+        } catch (Exception e) { 
+            e.printStackTrace();  
+        } 
+ 
+        // create a file chooser 
+        JFileChooser fc = new JFileChooser(lastFileName); 
+ 
+        // in response to a button click: 
+        int returnVal = fc.showSaveDialog(null); 
+ 
+        if (returnVal == JFileChooser.APPROVE_OPTION) { 
+            File file = fc.getSelectedFile(); 
+            lastFileName = file.getAbsolutePath();
+            try {
+                FileWriter fileWriter = new FileWriter(file.getAbsolutePath());
+                fileWriter.write(level.toJSONString());
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     
@@ -78,20 +96,18 @@ public class LevelEditor {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
         } catch (Exception e) { 
             e.printStackTrace();  
- 
         } 
  
         // create a file chooser 
-        JFileChooser fc = new JFileChooser(); 
+        JFileChooser fc = new JFileChooser(lastFileName); 
  
         // in response to a button click: 
         int returnVal = fc.showOpenDialog(null); 
  
         if (returnVal == JFileChooser.APPROVE_OPTION) { 
             File file = fc.getSelectedFile(); 
+            lastFileName = file.getAbsolutePath();
             loadLevel(file.getAbsolutePath(), box2d);
-        } else { 
-            System.out.println("Open command cancelled by user."); 
         }
     }
 
