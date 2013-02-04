@@ -72,7 +72,12 @@ public class LevelEditor {
         } 
  
         // create a file chooser 
-        JFileChooser fc = new JFileChooser(lastFileName); 
+        JFileChooser fc; 
+        if (lastFileName == null)
+            fc = new JFileChooser("levels/"); 
+        else {
+            fc = new JFileChooser(lastFileName); 
+        }
  
         // in response to a button click: 
         int returnVal = fc.showSaveDialog(null); 
@@ -99,7 +104,12 @@ public class LevelEditor {
         } 
  
         // create a file chooser 
-        JFileChooser fc = new JFileChooser(lastFileName); 
+        JFileChooser fc; 
+        if (lastFileName == null)
+            fc = new JFileChooser("levels/"); 
+        else {
+            fc = new JFileChooser(lastFileName); 
+        }
  
         // in response to a button click: 
         int returnVal = fc.showOpenDialog(null); 
