@@ -206,6 +206,7 @@ class Player extends Box2DObjectNode {
     public void update() {
         if (this.radiusChange) {
             if (r <= 2) {
+                Session.instance().resetsUsed++;
                 CirclesVsSquares cvs = CirclesVsSquares.instance();
                 ((GameScene)cvs.getCurrentScene()).resetPlayer();
             }
@@ -254,6 +255,7 @@ class Player extends Box2DObjectNode {
                 toRemoveList.add((Bullet)otherBody.getUserData());
 
                 this.r--;
+                Session.instance().radiusLost++;
                 this.radiusChange = true;
             }
             else if (otherBody.getUserData().getClass() == EndPoint.class) {
