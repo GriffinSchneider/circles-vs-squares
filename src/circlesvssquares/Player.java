@@ -265,7 +265,7 @@ class Player extends Box2DObjectNode {
                 // Increment the level
                 int nextLevel = scene.getCurrentLevel() + 1;
                 // If there are no more levels return to the main menu
-                if (nextLevel > GameScene.MAX_LEVELS) cvs.changeScene(new MenuScene(cvs));
+                if (nextLevel > GameScene.MAX_LEVELS) cvs.changeScene(new GameOverScene(cvs));
                 else cvs.changeScene(new GameScene(cvs, nextLevel, scene.isEditMode()));
             }
 
