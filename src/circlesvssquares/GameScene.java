@@ -12,6 +12,7 @@ import org.jbox2d.dynamics.joints.MouseJointDef;
 
 import pbox2d.PBox2D;
 
+import circlesvssquares.Enemy.EnemyType;
 import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
 
 public class GameScene extends Scene {
@@ -58,6 +59,7 @@ public class GameScene extends Scene {
         DELETE,
         GROUND,
         EASY_ENEMY,
+        CLUSTER_ENEMY,
         END_POINT
     };
 
@@ -180,7 +182,12 @@ public class GameScene extends Scene {
                     break;
                 case EASY_ENEMY:
                     if (this.app.mouseClick) {
-                        new Enemy(mousePos, 25, 25, box2d);
+                        Enemy.createSimple(mousePos, box2d);
+                    }
+                    break;
+                case CLUSTER_ENEMY:
+                    if (this.app.mouseClick) {
+                        Enemy.createCluster(mousePos, box2d);
                     }
                     break;
                 case END_POINT:
@@ -304,7 +311,7 @@ public class GameScene extends Scene {
     }
     
     void createDebugUI() {
-        float buttonWidth = 70;
+        float buttonWidth = 100;
         float buttonNum = 0;
         
         Button saveButton = Button.createButton(new Vec2(), buttonWidth, 30, new ButtonCallback() {
@@ -374,7 +381,7 @@ public class GameScene extends Scene {
         groundButton.text = "Ground";
         buttonNum++;
         
-        Button enemyButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
+        Button simpleEnemyButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
             @Override
             public void call() {
                 if (this.isDown) {
@@ -384,7 +391,20 @@ public class GameScene extends Scene {
                 }
             }
         });
-        enemyButton.text = "Enemy";
+        simpleEnemyButton.text = "Simple Enemy";
+        buttonNum++;
+        
+        Button clusterEnemyButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {
+            @Override
+            public void call() {
+                if (this.isDown) {
+                    currentType = GameMode.CLUSTER_ENEMY;
+                } else {
+                    currentType = GameMode.NONE;
+                }
+            }
+        });
+        clusterEnemyButton.text = "Cluster Enemy";
         buttonNum++;
         
         Button endButton = Button.createCheckBox(new Vec2(buttonWidth*buttonNum, 0), buttonWidth, 30, new ButtonCallback() {

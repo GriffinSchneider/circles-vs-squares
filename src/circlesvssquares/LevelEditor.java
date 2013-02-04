@@ -17,6 +17,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import circlesvssquares.Enemy.EnemyType;
+
 import pbox2d.PBox2D;
 
 public class LevelEditor {
@@ -55,6 +57,7 @@ public class LevelEditor {
                     Enemy e = (Enemy) n;
                     asMap(object).put("w", new Float(e.w));
                     asMap(object).put("h", new Float(e.h));
+                    asMap(object).put("type", e.getType().name());
                 }
                 else if (n.getClass() == EndPoint.class) {
                     EndPoint e = (EndPoint) n;
@@ -143,7 +146,20 @@ public class LevelEditor {
                     float w = ((Double) node.get("w")).floatValue();
                     float h = ((Double) node.get("h")).floatValue();
 
-                    new Enemy(new Vec2(x, y), w, h, box2d);
+                    String stype = (String) node.get("type");
+                    EnemyType type = EnemyType.Simple;
+                    // Older maps don't have an enemyType
+                    if (stype != null) type = EnemyType.valueOf(stype);
+                    
+                    switch(type) {
+                    default:
+                    case Simple:
+                        Enemy.createSimple(new Vec2(x, y), box2d);
+                        break;
+                    case Cluster:
+                        Enemy.createCluster(new Vec2(x, y), box2d);
+                        break;
+                    }
                 }
                 else if (sClass.equals(EndPoint.class.toString())) {
                     float r = ((Double) node.get("r")).floatValue();

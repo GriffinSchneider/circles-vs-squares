@@ -12,20 +12,30 @@ import processing.core.PConstants;
 
 class Bullet extends Box2DObjectNode {
 
-    public static Bullet createSimpleBullet(Vec2 pos, PBox2D box2d) {
-        Bullet bullet = new Bullet(pos, 20, 20, box2d);
-        objectList.add(bullet);
-        return bullet;
+    enum BulletType {
+        Simple,
+        Cluster
     }
+    
+    public static Bullet createSimpleBullet(Vec2 pos, PBox2D box2d) {
+        return new Bullet(pos, 20, 20, box2d, BulletType.Simple);
+    }
+    
+    public static Bullet createClusterBullet(Vec2 pos, PBox2D box2d) {
+        return new Bullet(pos, 30, 30, box2d, BulletType.Cluster);
+    }
+    
+    BulletType type;
     
     // a boundary is a simple rectangle with x,y,width,and height
     float w;
     float h;
     
-    float lifeSpan = 400;
+    float lifeSpan;
 
-    Bullet(Vec2 pos, float w, float h, PBox2D box2d) {
+    Bullet(Vec2 pos, float w, float h, PBox2D box2d, BulletType type) {
         super(pos, box2d);
+        this.type = type;
         this.w = w;
         this.h = h;
 
@@ -49,10 +59,23 @@ class Bullet extends Box2DObjectNode {
         fd.friction = 0.35f;
         fd.restitution = 0.2f;
 
+        
+        switch(this.type) {
+        default:
+        case Simple:
+            lifeSpan = 300;
+            break;
+        case Cluster:
+            lifeSpan = 15;
+            break;
+        }
+        
         // attached the shape to the body using a fixture
         body.createFixture(fd);
 
         body.setUserData(this);
+        
+        objectList.add(this);
     }
 
     // draw the boundary, if it were at an angle we'd have to do something fancier
@@ -60,7 +83,14 @@ class Bullet extends Box2DObjectNode {
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushStyle();
-        cvs.fill(255, 160, 0, lifeSpan);
+        switch(this.type) {
+        case Simple:
+            cvs.fill(255, 160, 100, lifeSpan);
+            break;
+        case Cluster:
+            cvs.fill(255, 160, 0);
+            break;
+        }
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
@@ -84,9 +114,29 @@ class Bullet extends Box2DObjectNode {
             this.body.applyForce(slowFieldDrag, this.getPhysicsPosition());
         }
         
-        lifeSpan--;
-        if (lifeSpan <= 0) {
-            this.destroy();
+        switch(this.type) {
+        case Simple:
+            lifeSpan--;
+            if (lifeSpan <= 0) {
+                this.destroy();
+            }
+            break;
+        case Cluster:
+            lifeSpan--;
+            if (lifeSpan <= 0) {
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                GameScene scene = (GameScene) cvs.getCurrentScene();
+                Player player = scene.player;
+                
+                int i;
+                for (i = 0; i < 2; i++) {
+                    Bullet bullet = Bullet.createSimpleBullet(this.getPhysicsPosition(), box2d);
+                    bullet.fireAtTarget(player.body, 50);
+                }
+                
+                this.destroy();
+            }
+            break;
         }
     }
 

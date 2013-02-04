@@ -11,15 +11,35 @@ import processing.core.PConstants;
 
 class Enemy extends Box2DObjectNode {
 
+    public static Enemy createSimple(Vec2 pos, PBox2D box2d) {
+        return new Enemy(pos, 25, 25, box2d, EnemyType.Simple);
+    }
+    
+    public static Enemy createCluster(Vec2 pos, PBox2D box2d) {
+        return new Enemy(pos, 35, 35, box2d, EnemyType.Cluster);
+    }
+    
+    enum EnemyType {
+        Simple,
+        Cluster
+    };
+    
     // a boundary is a simple rectangle with x,y,width,and height
     float w;
     float h;
     
     float shotCount = 0;
     float shotDelay = 75;
+    
+    private EnemyType type;
+    public EnemyType getType() {
+        return type;
+    }
 
-    Enemy(Vec2 pos, float w, float h, PBox2D box2d) {
+    private Enemy(Vec2 pos, float w, float h, PBox2D box2d, EnemyType type) {
         super(pos, box2d);
+        
+        this.type = type;
         this.w = w;
         this.h = h;
 
@@ -56,7 +76,14 @@ class Enemy extends Box2DObjectNode {
     public void display(float width, float height) {
         CirclesVsSquares cvs = CirclesVsSquares.instance();
         cvs.pushStyle();
-        cvs.fill(255, 0, 0);
+        switch(this.type) {
+        case Simple:
+            cvs.fill(255, 100, 100);
+            break;
+        case Cluster:
+            cvs.fill(255, 0, 0);
+            break;
+        }
         cvs.stroke(0);
         cvs.rectMode(PConstants.CENTER);
         cvs.rect(this.getGraphicsPosition().x,this.getGraphicsPosition().y,w,h);
@@ -81,7 +108,17 @@ class Enemy extends Box2DObjectNode {
         Vec2 unitToPlayer = vecToPlayer.mul(1.0f / vecToPlayer.length());
         
         // Create bullet in the direction of the player, 2.5 units away from us
-        Bullet bullet = Bullet.createSimpleBullet(unitToPlayer.mul(2.5f).add(this.getPhysicsPosition()), box2d);
-        bullet.fireAtTarget(player.body, 50);
+        Bullet bullet;
+        switch(this.type) {
+        default:
+        case Simple:
+            bullet = Bullet.createSimpleBullet(unitToPlayer.mul(2.5f).add(this.getPhysicsPosition()), box2d);
+            bullet.fireAtTarget(player.body, 50);
+            break;
+        case Cluster:
+            bullet = Bullet.createClusterBullet(unitToPlayer.mul(2.5f).add(this.getPhysicsPosition()), box2d);
+            bullet.fireAtTarget(player.body, 75);
+            break;
+        }
     }
 }
