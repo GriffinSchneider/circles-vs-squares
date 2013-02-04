@@ -90,6 +90,8 @@ public class GameScene extends Scene {
         
         if (editMode) LevelEditor.loadLevel("levels/test.json", box2d);
         else LevelEditor.loadLevel("levels/level" + currentLevel + ".json", box2d);
+
+        this.background = new ParallaxBackground(this.app);
     }
     
     void mouseWheel(int delta) {
