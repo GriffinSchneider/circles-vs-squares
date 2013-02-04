@@ -33,9 +33,9 @@ public class ParallaxBackground {
             app.fill(64+(depth*32));
             app.rect(xpos, ypos + 500, width, height + 1000);
         }
-        void update(float parallax, Vec2 change) {
-            xpos += -parallax * change.x;
-            ypos += -parallax * change.y;
+        void update(float parallax, float dx, float dy) {
+            xpos += -parallax * dx;
+            ypos += -parallax * dy;
 
             if (xpos < 0 - width) {
                 xpos = app.width + width;
@@ -69,19 +69,24 @@ public class ParallaxBackground {
     }
 
     public void display(float screenWidth, float screenHeight, Vec2 playerPos) {
-        this.app.pushStyle();
-        this.app.rectMode(PConstants.CENTER);
-        this.app.image(backgroundGradient, 0, 0);
         Vec2 posChange = new Vec2(0, 0);
         if (this.lastPos != null) {
             posChange = playerPos.sub(this.lastPos);
         }
         this.lastPos = playerPos;
-        
+
+        this.display(screenWidth, screenHeight, posChange.x, posChange.y);
+    }
+
+    public void display(float screenWidth, float screenHeight, float dx, float dy) {
+        this.app.pushStyle();
+        this.app.rectMode(PConstants.CENTER);
+        this.app.image(backgroundGradient, 0, 0);
+
         for (int i = 0; i < LAYERS; i++) {
             for (int j = BUILDINGS_PER_LAYER*i; j < BUILDINGS_PER_LAYER*(i+1); j++) {
                 buildings[j].show(i);
-                buildings[j].update(0.3f + i/15.0f, posChange);
+                buildings[j].update(0.3f + i/15.0f, dx, dy);
             }
         }
         this.app.popStyle();

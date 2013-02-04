@@ -6,14 +6,18 @@ import processing.core.PConstants;
 
 public class AboutScene extends Scene {
 
+    private ParallaxBackground background;
+
     public AboutScene(CirclesVsSquares app_) {
         super(app_);
     }
 
     @Override
     public void draw() {
-        this.app.background(255);
+        this.background.display(this.app.width, this.app.height, 5, 0);
+        
         super.draw();
+        
         this.app.textSize(50);
         this.app.textAlign(PConstants.CENTER);
         this.app.text("About", this.app.width/2, this.app.height/2 - 100);
@@ -30,5 +34,6 @@ public class AboutScene extends Scene {
             }
         });
         backButton.text = "<- Back";
+        this.background = new ParallaxBackground(this.app);
     }
 }
