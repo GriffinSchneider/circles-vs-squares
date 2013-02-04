@@ -52,6 +52,10 @@ public class ParallaxBackground {
 
     public ParallaxBackground(CirclesVsSquares app) {
         this.app = app;
+        this.reset();
+    }
+
+    public void reset() {
         for (int i = 0; i < BUILDINGS_PER_LAYER * LAYERS; i++) {
             buildings[i] = new Building(app);
         }

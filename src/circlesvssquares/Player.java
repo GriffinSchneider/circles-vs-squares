@@ -15,22 +15,22 @@ import pbox2d.PBox2D;
 class Player extends Box2DObjectNode {
 
     // Initial radius (in physics units) of the player circle
-    private static final float PLAYER_INITIAL_RADIUS = 12.0f;
+    public static final float PLAYER_INITIAL_RADIUS = 12.0f;
     // Magnitude of impulse to apply each frame in the x-direction to make the player move
-    private static final float PLAYER_MOVEMENT_IMPULSE = 13;
+    public static final float PLAYER_MOVEMENT_IMPULSE = 13;
     // Maximum x-velocity that the player can reach before we stop increasing the velocity
     // due to key presses.
-    private static final float PLAYER_MAX_SPEED = 50;
+    public static final float PLAYER_MAX_SPEED = 50;
     // Amount to decrease the player's x-velocity each frame if no movement buttons
     // are being pressed.
-    private static final float PLAYER_NO_MOVEMENT_DAMPING = 8.0f;
+    public static final float PLAYER_NO_MOVEMENT_DAMPING = 8.0f;
     // Magnitude of impulse in the y-direction to apply to make the player "jump"
-    private static final float PLAYER_JUMP_IMPULSE = 100;
+    public static final float PLAYER_JUMP_IMPULSE = 100;
     // The density of the player is always this coefficient times 2 pi times the player's
     // radius squared, so the player body always has equal weight.
-    private static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
+    public static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
     // Radius (in graphics units) of the slow field
-    private static final float PLAYER_SLOW_FIELD_RADIUS = 120.0f;
+    public static final float PLAYER_SLOW_FIELD_RADIUS = 120.0f;
     // Amount that objects in the slow field are dragged along with the player's movement.
     // Higher = more drag
     public static final float PLAYER_SLOW_FIELD_DRAG_COEFFICIENT = 25.0f;
@@ -112,11 +112,6 @@ class Player extends Box2DObjectNode {
         cvs.popMatrix();
     }
 
-    public void reset() {
-        this.r = PLAYER_INITIAL_RADIUS;
-        this.makeShape();
-        this.body.setTransform(new Vec2(-r, r), 0);
-    }
 
     public void makeShape() {
         Fixture f = this.body.getFixtureList();
@@ -210,7 +205,8 @@ class Player extends Box2DObjectNode {
     public void update() {
         if (this.radiusChange) {
             if (r <= 2) {
-                this.reset();
+                CirclesVsSquares cvs = CirclesVsSquares.instance();
+                ((GameScene)cvs.getCurrentScene()).resetPlayer();
             }
             else {
                 this.makeShape();

@@ -11,6 +11,7 @@ import org.jbox2d.dynamics.joints.MouseJoint;
 import org.jbox2d.dynamics.joints.MouseJointDef;
 
 import pbox2d.PBox2D;
+
 import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
 
 public class GameScene extends Scene {
@@ -42,7 +43,7 @@ public class GameScene extends Scene {
     
     Player player = null;
 
-    ParallaxBackground background = null;
+    public ParallaxBackground background = null;
     
     MouseJoint mouseJoint;
     
@@ -112,6 +113,13 @@ public class GameScene extends Scene {
                         
         return callback.getSelectedBody();
     }
+
+    public void resetPlayer() {
+        player.r = Player.PLAYER_INITIAL_RADIUS;
+        player.makeShape();
+        player.setPhysicsPosition(new Vec2(-player.r, player.r));
+        this.background.reset();
+    }
     
     @Override
     public void update() {
@@ -133,7 +141,7 @@ public class GameScene extends Scene {
             boolean wasClicked = Button.updateButtons();
             
             if (this.app.checkKey("R")) {
-                player.reset();
+                this.resetPlayer();
             }
             
             if (!wasClicked) {            
