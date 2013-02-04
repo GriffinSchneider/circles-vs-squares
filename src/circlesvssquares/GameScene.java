@@ -18,6 +18,7 @@ import circlesvssquares.PointQueryCallback.PointQueryCallbackFilter;
 public class GameScene extends Scene {
     private static final float WORLD_GRAVITY = -110;
     public static final int MAX_LEVELS = 5;
+    private static final float PLAYER_DEATH_HEIGHT = 7000;
     
     private boolean editMode = false;
     public boolean isEditMode() {
@@ -271,6 +272,8 @@ public class GameScene extends Scene {
             // Step the physics simulation
             box2d.step();
         }
+
+        if (player.getGraphicsPosition().y > PLAYER_DEATH_HEIGHT) this.resetPlayer();
         
         Box2DObjectNode.clearToRemove();
     }
