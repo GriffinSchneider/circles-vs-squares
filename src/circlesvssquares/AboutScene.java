@@ -2,6 +2,7 @@ package circlesvssquares;
 
 import org.jbox2d.common.Vec2;
 
+import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class AboutScene extends Scene {
@@ -14,7 +15,7 @@ public class AboutScene extends Scene {
 
     @Override
     public void draw() {
-        this.background.display(this.app.width, this.app.height, 5, 0);
+        this.background.display(this.app.width, this.app.height, 5, 1f * PApplet.sin((float)this.app.frameCount / 50f));
         
         super.draw();
         
