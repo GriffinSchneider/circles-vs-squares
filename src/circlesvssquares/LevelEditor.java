@@ -1,11 +1,15 @@
 package circlesvssquares;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import javax.swing.JFileChooser;
+import javax.swing.UIManager;
 
 import org.jbox2d.common.Vec2;
 import org.json.simple.JSONArray;
@@ -68,11 +72,30 @@ public class LevelEditor {
             e.printStackTrace();
         }
     }
+    
+    public static void loadLevel(PBox2D box2d) {
+        try { 
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+        } catch (Exception e) { 
+            e.printStackTrace();  
+ 
+        } 
+ 
+        // create a file chooser 
+        JFileChooser fc = new JFileChooser(); 
+ 
+        // in response to a button click: 
+        int returnVal = fc.showOpenDialog(null); 
+ 
+        if (returnVal == JFileChooser.APPROVE_OPTION) { 
+            File file = fc.getSelectedFile(); 
+            loadLevel(file.getAbsolutePath(), box2d);
+        } else { 
+            System.out.println("Open command cancelled by user."); 
+        }
+    }
 
     public static void loadLevel(String slevel, PBox2D box2d) {
-        if (slevel == null) {
-            slevel = "levels/test.json";
-        }
         JSONParser parser = new JSONParser();
 
         try {

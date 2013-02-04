@@ -89,8 +89,7 @@ public class GameScene extends Scene {
         if (editMode) createDebugUI();
         else currentType = GameMode.PHYSICS;
         
-        if (editMode) LevelEditor.loadLevel("levels/test.json", box2d);
-        else LevelEditor.loadLevel("levels/level" + currentLevel + ".json", box2d);
+        if (!editMode) LevelEditor.loadLevel("levels/level" + currentLevel + ".json", box2d);
 
         this.background = new ParallaxBackground(this.app);
     }
@@ -321,7 +320,7 @@ public class GameScene extends Scene {
             @Override
             public void call() {
                 Box2DObjectNode.clearObjects();
-                LevelEditor.loadLevel(null, box2d);
+                LevelEditor.loadLevel(box2d);
             }
         });
         loadButton.text = "Load";
