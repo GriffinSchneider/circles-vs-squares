@@ -25,7 +25,7 @@ class Player extends Box2DObjectNode {
     // are being pressed.
     public static final float PLAYER_NO_MOVEMENT_DAMPING = 8.0f;
     // Magnitude of impulse in the y-direction to apply to make the player "jump"
-    public static final float PLAYER_JUMP_IMPULSE = 100;
+    public static final float PLAYER_JUMP_IMPULSE = 250;
     // The density of the player is always this coefficient times 2 pi times the player's
     // radius squared, so the player body always has equal weight.
     public static final float PLAYER_DENSITY_COEFFIECIENT = 400.0f;
@@ -164,6 +164,7 @@ class Player extends Box2DObjectNode {
 
     public void jumpIfPossible() {
         if (this.collisionCounter > 0) {
+            this.body.setLinearVelocity(new Vec2(this.body.getLinearVelocity().x, 0));
             this.body.applyLinearImpulse(new Vec2(0, PLAYER_JUMP_IMPULSE), this.body.getWorldCenter());
         }
     }
