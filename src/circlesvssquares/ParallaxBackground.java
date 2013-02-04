@@ -66,6 +66,7 @@ public class ParallaxBackground {
             float color = (float)row / (float)backgroundGradient.height;
             backgroundGradient.pixels[i] = app.color(100.0f, 100.0f, 150.0f + color * 100.0f);
         }
+        lastPos = null;
     }
 
     public void display(float screenWidth, float screenHeight, Vec2 playerPos) {
